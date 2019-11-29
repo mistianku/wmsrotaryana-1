@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="FSLS-01"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="552"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<queryString><![CDATA[SELECT
+     `order`.`docNum` AS order_docNum,
+     `order`.`docDate` AS order_docDate,
+     `order`.`priceCode` AS order_priceCode,
+     `order`.`ref2` AS order_ref2,
+     `order`.`comments` AS order_comments,
+     itemoptdetail1.`optionalCode` AS itemoptdetail1_optionalCode,
+     itemoptsett.`dscription` AS itemoptsett_dscription,
+     warehouse.`dscription` AS warehouse_dscription,
+     orderdetail1.`price` AS orderdetail1_price,
+     orderdetail1.`quantity` AS orderdetail1_quantity,
+     `order`.`aftTaxAmount` AS order_aftTaxAmount,
+     `order`.`discSumP2` AS order_discSumP2,
+     sum(`order`.`discSumP2`) AS discSumP2,
+     orderdetail1.`discPrcnt2` AS orderdetail1_discPrcnt2,
+     sum(orderdetail1.`discPrcnt2`) AS discPrcnt2,
+     sum(orderdetail1.`quantity`) AS quantity,
+     sum(`order`.`aftTaxAmount`) AS docTotal,
+     sum( orderdetail1.quantity * orderdetail1.price) AS Total,
+     sum(orderdetail1.quantity * itemprice.price) AS TotalHETMOP
+FROM
+     `itemoptdetail1` itemoptdetail1 INNER JOIN `orderdetail1` orderdetail1 ON itemoptdetail1.`ownerCode` = orderdetail1.`itemCode`
+     INNER JOIN `itemoptsett` itemoptsett ON itemoptdetail1.`optionalCode` = itemoptsett.`optionalCode`
+     INNER JOIN `order` `order` ON orderdetail1.`docEntry` = `order`.`docEntry`
+     INNER JOIN `itemprice` itemprice ON orderdetail1.`itemCode` = itemprice.`itemCode`
+     LEFT OUTER JOIN `warehouse` warehouse ON `order`.`whsCode` = warehouse.`whsCode`
+WHERE
+     `order`.docStatus <> 'B'
+ AND orderdetail1.lineStatus <> 'B'
+ AND itemprice.priceCode = 'HETMOP'
+ AND itemprice.currentPrice = 'Y'
+ AND `order`.whsCode >= '300'
+GROUP BY
+ `order`.docDate]]></queryString>
+
+	<field name="order_docNum" class="java.lang.Integer"/>
+	<field name="order_docDate" class="java.sql.Date"/>
+	<field name="order_priceCode" class="java.lang.String"/>
+	<field name="order_ref2" class="java.lang.String"/>
+	<field name="order_comments" class="java.lang.String"/>
+	<field name="itemoptdetail1_optionalCode" class="java.lang.String"/>
+	<field name="itemoptsett_dscription" class="java.lang.String"/>
+	<field name="warehouse_dscription" class="java.lang.String"/>
+	<field name="orderdetail1_price" class="java.lang.Double"/>
+	<field name="orderdetail1_quantity" class="java.lang.Double"/>
+	<field name="order_aftTaxAmount" class="java.lang.Double"/>
+	<field name="order_discSumP2" class="java.lang.Double"/>
+	<field name="discSumP2" class="java.lang.Double"/>
+	<field name="orderdetail1_discPrcnt2" class="java.lang.Double"/>
+	<field name="discPrcnt2" class="java.lang.Double"/>
+	<field name="quantity" class="java.lang.Double"/>
+	<field name="docTotal" class="java.lang.Double"/>
+	<field name="Total" class="java.lang.Double"/>
+	<field name="TotalHETMOP" class="java.lang.Double"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="86"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="552"
+						height="30"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="16"/>
+					</textElement>
+				<text><![CDATA[REKAPITULASI DOKUMEN KONSINYASI]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="7"
+						y="43"
+						width="88"
+						height="13"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[Periode]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="7"
+						y="57"
+						width="87"
+						height="13"
+						key="staticText-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[Nama Produk]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="7"
+						y="70"
+						width="89"
+						height="13"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[Counter]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="94"
+						y="43"
+						width="7"
+						height="12"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="94"
+						y="57"
+						width="7"
+						height="12"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="95"
+						y="70"
+						width="7"
+						height="12"
+						key="staticText-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[:]]></text>
+				</staticText>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="32"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="6"
+						y="5"
+						width="30"
+						height="19"
+						key="staticText-8"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[No.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="35"
+						y="5"
+						width="66"
+						height="19"
+						key="staticText-9"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[Tanggal]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="93"
+						y="5"
+						width="53"
+						height="24"
+						key="staticText-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[No. Dokumen]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="154"
+						y="5"
+						width="64"
+						height="24"
+						key="staticText-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[No.             Faktur]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="270"
+						y="5"
+						width="75"
+						height="24"
+						key="staticText-12"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[No.                SKU/PO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="348"
+						y="5"
+						width="78"
+						height="24"
+						key="staticText-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[Total Penjualan [unit]]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="449"
+						y="5"
+						width="40"
+						height="23"
+						key="staticText-14"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[Nilai Penj.[]]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="511"
+						y="5"
+						width="40"
+						height="23"
+						key="staticText-15"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[Nilai Penj.[HETMOP]]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="2"
+						width="552"
+						height="0"
+						key="line-5"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="30"
+						width="552"
+						height="0"
+						key="line-6"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="35"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="44"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="0"
+						y="5"
+						width="88"
+						height="13"
+						key="staticText-16"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[SUBTOTAL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="26"
+						width="88"
+						height="13"
+						key="staticText-17"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[TOTAL - []]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="2"
+						width="552"
+						height="0"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="20"
+						width="552"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="22"
+						width="552"
+						height="0"
+						key="line-3"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="41"
+						width="552"
+						height="0"
+						key="line-4"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<lastPageFooter>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</lastPageFooter>
+		<summary>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

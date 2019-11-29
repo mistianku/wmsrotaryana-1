@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="FSLS-04_C"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="552"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="56"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="docNumFr" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="custmrCodeFr" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["0000000000"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="docDateFr" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["2008-8-1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="docDateTo" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["2008-8-31"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[SELECT
+     preference.`cmpnyID` AS preference_cmpnyID,
+     preference.`cmpnyName` AS preference_cmpnyName,
+     preference.`address` AS preference_address,
+     preference.`city` AS preference_city,
+     preference.`faSpv` AS preference_faSpv,
+     preference.`zipCode` AS preference_zipCode,
+     taxnoregdetail1.`kodeSeri` AS serifaktur_kodeSeri,
+     taxnoregdetail1.`docNum` AS serifaktur_docNum,
+     taxnoregdetail1.`taxDate` AS serifaktur_docDate,
+     taxnoregdetail1.`noSeri` AS taxnoregdetail1_noSeri,
+     taxnoregdetail1.`npwpNumber` AS taxnoregdetail1_npwpNumber,
+     npwp.`ownerCode` AS customer_custmrCode,
+     address.`dscription` AS customer_custmrName,
+     address.`address` AS address_address,
+     address.`city` AS address_city,
+     preference.`npwpNumber` AS preference_npwpNumber,
+     preference.`pkpDate` AS preference_pkpDate,
+     invoice.`docdate` AS invoice_docdate,
+     invoice.`taxPercent` AS invoice_taxPercent,
+     invoice.`totalAmount` AS invoice_totalAmount,
+     invoice.`discAmount` AS invoice_discAmount,
+     invoice.`bfrTaxAmount` AS invoice_bfrTaxAmount,
+     invoice.`taxAmount` AS invoice_taxAmount,
+     invoice.`aftTaxAmount` AS invoice_aftTaxAmount,
+     invoicedetail1.`itemCode` AS invoicedetail1_itemCode,
+     invoicedetail1.`quantity` AS invoicedetail1_quantity,
+     invoicedetail1.`price` AS invoicedetail1_price,
+     invoicedetail1.`linenum` AS invoicedetail1_linenum,
+     item.`dscription` AS item_dscription,
+     ( SELECT count(linenum) FROM `invoicedetail1` WHERE `invoice`.docNum = `taxnoregdetail1`.docNum 
+      AND `invoicedetail1`.docEntry = `invoice`.docEntry and `invoicedetail1`.quantity>0)
+     as ttlbrs,
+ iof1.optdtlcode as brand,
+     case when `invoice`.ref2='' then iof1.dscription else `invoice`.ref2 end as skucode,
+right(rtrim(customer.custmrname),5) as kdstore
+FROM
+     `invoicedetail1` invoicedetail1 INNER JOIN `invoice` invoice ON invoicedetail1.`docEntry` = invoice.`docEntry` and invoicedetail1.`quantity` > 0
+     inner join itemoptdetail1 iod on invoicedetail1.`itemCode`=iod.ownercode and iod.optionalcode='06'
+     inner join itemoptionalinfo iof1 on iod.optdtlcode=iof1.optdtlcode and iof1.optionalcode='06'
+     LEFT OUTER JOIN `customer` customer ON invoice.`custmrCode` = customer.`custmrCode`
+     inner JOIN `taxnoregdetail1` taxnoregdetail1 ON invoice.`docNum` = taxnoregdetail1.`docNum`
+     left outer JOIN `address` address ON invoice.`custmrCode` = address.`ownerCode` and address.`addrTypeCode`='04'
+     LEFT OUTER JOIN `npwp` npwp ON invoice.`custmrcode` = npwp.`ownerCode`
+     LEFT OUTER JOIN `addrtype` addrtype ON address.`addrTypeCode` = addrtype.`addrTypeCode`
+     LEFT OUTER JOIN `item` item ON invoicedetail1.`itemCode` = item.`itemCode`,
+     `preference` preference
+WHERE      
+     invoice.`docNum` = $P{docNumFr} 
+     AND invoice.`custmrCode` = $P{custmrCodeFr} 
+     AND invoice.docDate BETWEEN $P{docDateFr} AND $P{docDateTo} 
+group by taxnoregdetail1.docnum]]></queryString>
+
+	<field name="preference_cmpnyID" class="java.lang.String"/>
+	<field name="preference_cmpnyName" class="java.lang.String"/>
+	<field name="preference_address" class="java.lang.String"/>
+	<field name="preference_city" class="java.lang.String"/>
+	<field name="preference_faSpv" class="java.lang.String"/>
+	<field name="preference_zipCode" class="java.lang.String"/>
+	<field name="serifaktur_kodeSeri" class="java.lang.String"/>
+	<field name="serifaktur_docNum" class="java.lang.Integer"/>
+	<field name="serifaktur_docDate" class="java.sql.Date"/>
+	<field name="taxnoregdetail1_noSeri" class="java.lang.String"/>
+	<field name="taxnoregdetail1_npwpNumber" class="java.lang.String"/>
+	<field name="customer_custmrCode" class="java.lang.String"/>
+	<field name="customer_custmrName" class="java.lang.String"/>
+	<field name="address_address" class="java.lang.String"/>
+	<field name="address_city" class="java.lang.String"/>
+	<field name="preference_npwpNumber" class="java.lang.String"/>
+	<field name="preference_pkpDate" class="java.sql.Date"/>
+	<field name="invoice_docdate" class="java.sql.Date"/>
+	<field name="invoice_taxPercent" class="java.lang.Double"/>
+	<field name="invoice_totalAmount" class="java.lang.Double"/>
+	<field name="invoice_discAmount" class="java.lang.Double"/>
+	<field name="invoice_bfrTaxAmount" class="java.lang.Double"/>
+	<field name="invoice_taxAmount" class="java.lang.Double"/>
+	<field name="invoice_aftTaxAmount" class="java.lang.Double"/>
+	<field name="invoicedetail1_itemCode" class="java.lang.String"/>
+	<field name="invoicedetail1_quantity" class="java.math.BigDecimal"/>
+	<field name="invoicedetail1_price" class="java.math.BigDecimal"/>
+	<field name="invoicedetail1_linenum" class="java.lang.Integer"/>
+	<field name="item_dscription" class="java.lang.String"/>
+	<field name="ttlbrs" class="java.lang.Long"/>
+	<field name="brand" class="java.lang.String"/>
+	<field name="skucode" class="java.lang.String"/>
+	<field name="kdstore" class="java.lang.String"/>
+
+	<variable name="count" class="java.lang.Long" resetType="Group" resetGroup="docNum" calculation="Nothing">
+		<variableExpression><![CDATA[$F{ttlbrs}]]></variableExpression>
+	</variable>
+	<variable name="isBreak" class="java.lang.Boolean" resetType="Page" calculation="Nothing">
+		<variableExpression><![CDATA[$V{docNum_COUNT}.intValue()==$V{count}.intValue()?
+new Boolean(false):
+($V{PAGE_COUNT}.equals(new Integer(18)) ?
+new Boolean(true):new Boolean(false) )]]></variableExpression>
+	</variable>
+	<variable name="page" class="java.lang.Integer" resetType="Group" resetGroup="docNum" calculation="Count">
+		<variableExpression><![CDATA[$F{invoicedetail1_itemCode}]]></variableExpression>
+	</variable>
+	<variable name="page_count" class="java.lang.Integer" resetType="Group" resetGroup="docNum" calculation="Count">
+		<variableExpression><![CDATA[$V{PAGE_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="nettPrice" class="java.lang.Integer" resetType="Group" resetGroup="docNum" calculation="Nothing">
+	</variable>
+	<variable name="isPrint" class="java.lang.Boolean" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$V{page}.intValue()==$V{count}.intValue()?new Boolean(true):new Boolean (false)]]></variableExpression>
+	</variable>
+	<variable name="date" class="java.lang.Integer" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new Integer($F{serifaktur_docDate}.getDate())]]></variableExpression>
+	</variable>
+	<variable name="month" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[($F{serifaktur_docDate}.getMonth()==0?"Januari":
+($F{serifaktur_docDate}.getMonth()==1?"Februari":
+($F{serifaktur_docDate}.getMonth()==2?"Maret":
+($F{serifaktur_docDate}.getMonth()==3?"April":
+($F{serifaktur_docDate}.getMonth()==4?"Mei":
+($F{serifaktur_docDate}.getMonth()==5?"Juni":
+($F{serifaktur_docDate}.getMonth()==6?"Juli":
+($F{serifaktur_docDate}.getMonth()==7?"Agustus":
+($F{serifaktur_docDate}.getMonth()==8?"September":
+($F{serifaktur_docDate}.getMonth()==9?"Oktober":
+($F{serifaktur_docDate}.getMonth()==10?"November":"Desember"
+)))))))))))]]></variableExpression>
+	</variable>
+	<variable name="year" class="java.lang.Integer" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[new Integer($F{serifaktur_docDate}.getYear()+1900)]]></variableExpression>
+	</variable>
+	<variable name="cal" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{preference_city}+", "+$V{date}.toString()+" "+$V{month}+" "+$V{year}.toString()]]></variableExpression>
+	</variable>
+	<variable name="pindah" class="java.lang.Integer" resetType="Group" resetGroup="docNum" calculation="Sum">
+		<variableExpression><![CDATA[$V{nettPrice}]]></variableExpression>
+	</variable>
+	<variable name="pindahan" class="java.lang.Boolean" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$V{docNum_COUNT}.intValue()==$V{count}.intValue()?
+new Boolean(false):
+($V{count}.intValue() > 15 ?
+new Boolean(true):new Boolean(false) )]]></variableExpression>
+	</variable>
+	<variable name="noFaktur" class="java.lang.String" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$F{serifaktur_docNum}.toString()]]></variableExpression>
+	</variable>
+	<variable name="txtFaktur" class="java.lang.String" resetType="Group" resetGroup="docNum" calculation="Nothing">
+		<variableExpression><![CDATA[($V{noFaktur}.length()==1?new String("000"+$V{noFaktur}):
+($V{noFaktur}.length()==2?new String("00"+$V{noFaktur}):
+($V{noFaktur}.length()==3?new String("0"+$V{noFaktur}): $V{noFaktur})))]]></variableExpression>
+		<initialValueExpression><![CDATA[($V{noFaktur}.length()==1?new String("000"+$V{noFaktur}):
+($V{noFaktur}.length()==2?new String("00"+$V{noFaktur}):
+($V{noFaktur}.length()==3?new String("0"+$V{noFaktur}): $V{noFaktur})))]]></initialValueExpression>
+	</variable>
+	<variable name="kode_fkt" class="java.lang.String" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$F{serifaktur_kodeSeri}.substring(0,3)+"."+$F{serifaktur_kodeSeri}.substring(3,6)]]></variableExpression>
+	</variable>
+	<variable name="count_nett" class="java.lang.Long" resetType="Group" resetGroup="docNum" calculation="Sum">
+		<variableExpression><![CDATA[new java.lang.Long($V{nettPrice}.longValue() + $V{pindah}.longValue())]]></variableExpression>
+	</variable>
+	<variable name="thn_fkt" class="java.lang.String" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$V{year}.toString().substring(2,4)]]></variableExpression>
+	</variable>
+	<variable name="kodeseri_fkt" class="java.lang.String" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$V{kode_fkt}+"-"+$V{thn_fkt}+"."+$F{taxnoregdetail1_noSeri}]]></variableExpression>
+	</variable>
+
+		<group  name="docNum" isStartNewPage="true" isResetPageNumber="true" isReprintHeaderOnEachPage="true" >
+			<groupExpression><![CDATA[$F{serifaktur_docNum}]]></groupExpression>
+			<groupHeader>
+			<band height="61"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="12"
+						y="34"
+						width="277"
+						height="14"
+						key="textField-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Kode Sopplier/Kode SKU :"+$F{customer_custmrCode}.substring(7)+" / "+$F{skucode}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="12"
+						y="48"
+						width="373"
+						height="13"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["PERIODE :"+$P{docDateFr}+" S/D "+$P{docDateTo}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="120"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="132"
+						y="51"
+						width="420"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{preference_cmpnyName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="132"
+						y="67"
+						width="145"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{preference_address}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="277"
+						y="67"
+						width="145"
+						height="17"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{preference_city}+" "+$F{preference_zipCode}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="133"
+						y="82"
+						width="144"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{preference_npwpNumber}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="133"
+						y="97"
+						width="143"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$F{preference_pkpDate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="161"
+						y="11"
+						width="161"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{kodeseri_fkt}]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="89"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="134"
+						y="22"
+						width="418"
+						height="15"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{customer_custmrName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="134"
+						y="37"
+						width="418"
+						height="14"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Top">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{address_address}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="134"
+						y="51"
+						width="418"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{address_city}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="134"
+						y="66"
+						width="143"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Top">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{taxnoregdetail1_npwpNumber}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="389"
+						y="67"
+						width="163"
+						height="17"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["NPPKP: "+$F{taxnoregdetail1_npwpNumber}]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="27"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="12"
+						y="0"
+						width="83"
+						height="14"
+						key="staticText-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font/>
+					</textElement>
+				<text><![CDATA[KODE STORE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="267"
+						y="0"
+						width="104"
+						height="14"
+						key="staticText-8"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font/>
+					</textElement>
+				<text><![CDATA[TGL FAKTUR]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="0"
+						width="104"
+						height="14"
+						key="staticText-9"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font/>
+					</textElement>
+				<text><![CDATA[NO FAKTUR]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Page" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="132"
+						y="14"
+						width="104"
+						height="13"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Bottom">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{txtFaktur}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="267"
+						y="14"
+						width="104"
+						height="13"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Bottom">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$F{invoice_docdate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="422"
+						y="6"
+						width="130"
+						height="21"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Bottom">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{invoice_totalAmount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="12"
+						y="14"
+						width="83"
+						height="13"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Bottom">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{kdstore}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="-10"
+						y="14"
+						width="22"
+						height="13"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{COLUMN_COUNT}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="135"  isSplitAllowed="false" >
+				<staticText>
+					<reportElement
+						x="51"
+						y="15"
+						width="239"
+						height="17"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Bottom">
+						<font size="10"/>
+					</textElement>
+				<text><![CDATA[#############################]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="358"
+						y="39"
+						width="194"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{invoice_discAmount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="357"
+						y="92"
+						width="195"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{invoice_bfrTaxAmount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="357"
+						y="116"
+						width="195"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{invoice_taxAmount}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="358"
+						y="15"
+						width="194"
+						height="17"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{invoice_totalAmount}]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="108"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="301"
+						y="2"
+						width="239"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{cal}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="403"
+						y="62"
+						width="132"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font size="10"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{preference_faSpv}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="402"
+						y="88"
+						width="132"
+						height="20"
+						key="staticText-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10"/>
+					</textElement>
+				<text><![CDATA[FAS]]></text>
+				</staticText>
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

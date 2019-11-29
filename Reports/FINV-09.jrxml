@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="FINV-09"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="552"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="whsCode" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["001"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="docdateku" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["2007-11-30"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="itemCode" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["A1001"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 
+x.docdate,x.docnum,x.itemcode,sum(quantity) as quantity,sum(QType) as QType,
+	x.whscode ,w.dscription as whsName ,Trans,TranType ,ref1,ref2,comments,x.custmrcode,custmrname
+	,case when max(onhand) is null then 0 else max(onhand) end as onhand,dd ,i.dscription as itemName
+
+from
+(
+select 	cast($P{docdateku} as datetime)+cast($P{docdateku} as datetime) as docdate,0 as docnum,isb.itemcode,0 as quantity,0 as QType ,
+	isb.whscode ,'S/Awl' as Trans,'' as TranType , '' as ref1,'' as ref2,'' as comments 
+	,'' as custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+,month(cast($P{docdateku} as datetime)) as dd , '' as itemName
+from inventory isb
+where isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}
+/*-- awal ---*/
+union all
+
+select 	pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity as QType ,
+	pr1.whscode ,'P/RCP' as Trans,'' as TranType , ref1,ref2,comments 
+	,custmrcode,
+
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd , '' as itemName
+from purchasereceivedetail1 pr1 , purchasereceive pr 
+where 
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) 
+	and year(pr.docdate)=year($P{docdateku}) 
+	and cast(cast(pr.docdate as char(11)) as datetime)<=cast($P{docdateku} as datetime)
+	and pr1.whscode = $P{whsCode} and pr1.itemcode=$P{itemCode}
+
+union all
+
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity*-1 as QType ,pr1.whscode ,
+'P/RTR' as trans,'' as TranType , ref1,ref2,comments, custmrcode
+	,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from purchasereturndetail1 pr1 , purchasereturn pr 
+where 	
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) 
+	and year(pr.docdate)=year(cast($P{docdateku} as datetime)) 
+	and pr.docdate <= cast($P{docdateku} as datetime) 
+	and pr1.whscode = $P{whsCode} and pr1.itemcode=$P{itemCode}
+
+union all
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity as QType ,pr1.whscode , 'G/RCP' as Trans,Case when pr.TranType='1' then 'Others' else case when pr.TranType='1' then 'Outlet' else 'Adjustmen' end end as TranType , ref1,ref2,comments 
+	,custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from goodsreceiptdetail1 pr1 , goodsreceipt pr 
+where 
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) and year(pr.docdate)=year($P{docdateku})
+	and pr1.whscode = $P{whsCode} and pr1.itemcode=$P{itemCode}
+
+union all
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity as QType ,pr1.TowhsCode as whsCode , 'T/IN' as Trans,pr1.FrwhsCode as TranType, ref1,ref2,comments 
+	,custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from goodstransferdetail1 pr1 , goodstransfer pr 
+where 
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) and year(pr.docdate)=year(cast($P{docdateku} as datetime)) 
+	and pr.docdate <= cast($P{docdateku} as datetime) 
+	and pr1.itemcode=$P{itemCode}
+	and pr1.TowhsCode = $P{whsCode}
+	
+
+union all
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity*-1 as QType ,pr1.FrwhsCode , 'T/OUT' as Trans,pr1.TowhsCode as TranType, ref1,ref2,comments 
+	,custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from goodstransferdetail1 pr1 , goodstransfer pr 
+where 	
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) and year(pr.docdate)=year(cast($P{docdateku} as datetime)) 
+	and pr.docdate <= cast($P{docdateku} as datetime) 
+	and pr1.itemcode=$P{itemCode}
+	and pr1.FrwhsCode = $P{whsCode}
+	
+union all
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity*-1 as QType ,pr1.whscode , 'G/ISS' as Trans,Case when pr.TranType='1' then 'Others' else case when pr.TranType='1' then 'Outlet' else 'Adjustmen' end end as TranType , ref1,ref2,comments 
+	,custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from goodsissuedetail1 pr1 , goodsissue pr 
+where
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) and year(pr.docdate)=year(cast($P{docdateku} as datetime)) 
+	and pr.docdate <= cast($P{docdateku} as datetime) 
+	and pr1.itemcode=$P{itemCode}
+	and pr1.whscode = $P{whsCode} 
+	
+	
+union all
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity*-1 as QType ,pr1.whscode , 'SLS/C' as Trans,'' as TranType, ref1,ref2,comments 
+	,custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from consignmentdetail1 pr1 , consignment pr 
+where 
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) and year(pr.docdate)=year(cast($P{docdateku} as datetime)) 
+	and pr.docdate <= cast($P{docdateku} as datetime) 
+	and pr1.itemcode=$P{itemCode}
+	and pr1.whscode = $P{whsCode} 
+
+union all
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity*-1 as QType ,pr1.whscode , 'SLS' as Trans,'' as TranType, ref1,ref2,comments 
+	,custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from deliverydetail1 pr1 , delivery pr 
+where 
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) and year(pr.docdate)=year(cast($P{docdateku} as datetime)) 
+	and pr.docdate <= cast($P{docdateku} as datetime) 
+	and pr1.itemcode=$P{itemCode}
+	and pr1.whscode = $P{whsCode} 
+	and not exists
+( select o.docentry,o1.baseentry from `order` o ,orderdetail1 o1 where o.docentry=o1.docentry and pr1.baseentry=o1.docentry and 
+	exists 
+	(select c.docentry from consignment c where c.docentry=o1.baseentry  ))
+union all
+select pr.docdate,pr.docnum,pr1.itemcode,pr1.quantity,pr1.quantity as QType ,pr1.whscode , 'RTR' as Trans,'' as TranType, ref1,ref2,comments 
+	,custmrcode,
+(select case when onhand is null then 0 else onhand end  from itemstockbalance isb 
+where case when month(cast($P{docdateku} as datetime))=1 then year($P{docdateku})-1 else year($P{docdateku}) end =isb.Yop
+	and case when month(cast($P{docdateku} as datetime))=1 then 12 else month(cast($P{docdateku} as datetime))-1 end = isb.mop
+	and isb.whscode=$P{whsCode} and isb.itemcode=$P{itemCode}) as onhand
+
+,month(cast($P{docdateku} as datetime)) as dd, '' as itemName
+from returndetail1 pr1 , `return` pr 
+where 	
+	pr1.docentry=pr.docentry 
+	and month(pr.docdate)=month(cast($P{docdateku} as datetime)) and year(pr.docdate)=year(cast($P{docdateku} as datetime)) 
+	and pr.docdate <= cast($P{docdateku} as datetime) 
+	and pr1.itemcode=$P{itemCode}
+	and pr1.whscode = $P{whsCode} 
+
+) as x
+inner join item i on x.itemcode=i.itemcode
+inner join warehouse w on w.whscode=x.whscode
+LEFT OUTER join customer c on c.custmrcode=x.custmrcode
+group by 
+x.docdate,x.docnum,x.itemcode,
+	x.whscode ,w.dscription,Trans,TranType ,ref1,ref2,comments 
+	,dd ,i.dscription]]></queryString>
+
+	<field name="docdate" class="java.lang.String"/>
+	<field name="docnum" class="java.lang.Long"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="quantity" class="java.lang.Double"/>
+	<field name="QType" class="java.lang.Double"/>
+	<field name="whscode" class="java.lang.String"/>
+	<field name="whsName" class="java.lang.String"/>
+	<field name="Trans" class="java.lang.String"/>
+	<field name="TranType" class="java.lang.String"/>
+	<field name="ref1" class="java.lang.String"/>
+	<field name="ref2" class="java.lang.String"/>
+	<field name="comments" class="java.lang.String"/>
+	<field name="custmrcode" class="java.lang.String"/>
+	<field name="custmrname" class="java.lang.String"/>
+	<field name="onhand" class="java.lang.Long"/>
+	<field name="dd" class="java.lang.Long"/>
+	<field name="itemName" class="java.lang.String"/>
+
+	<sortField name="docdate" />
+
+	<variable name="balance" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{QType}]]></variableExpression>
+	</variable>
+	<variable name="In" class="java.lang.Double" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[
+new Double($F{QType}.doubleValue() < 0 ? 0 : $F{quantity}.doubleValue())]]></variableExpression>
+	</variable>
+	<variable name="Out" class="java.lang.Double" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new Double($F{QType}.doubleValue() < 0 ?  $F{quantity}.doubleValue():0)]]></variableExpression>
+	</variable>
+	<variable name="Ket" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{Trans}+" "+$F{TranType}]]></variableExpression>
+	</variable>
+	<variable name="balance1" class="java.lang.Double" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new Double(  ($F{onhand}.intValue()) +($V{balance}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="inAmnt" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{In}]]></variableExpression>
+	</variable>
+	<variable name="outAmnt" class="java.lang.Double" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$V{Out}]]></variableExpression>
+	</variable>
+	<variable name="balanceAmnt" class="java.lang.Double" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new java.lang.Double( $F{onhand}.doubleValue()+ ($V{inAmnt}.doubleValue()) -($V{outAmnt}.doubleValue()) )]]></variableExpression>
+	</variable>
+	<variable name="itemTxt" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{itemcode}+"-"+$F{itemName}]]></variableExpression>
+	</variable>
+	<variable name="whsTxt" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[$F{whscode}+"-"+$F{whsName}]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="64"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="496"
+						y="43"
+						width="47"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[new Integer ($F{onhand}.intValue())]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="425"
+						y="43"
+						width="71"
+						height="18"
+						key="staticText-8"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font/>
+					</textElement>
+				<text><![CDATA[Begin Stock :]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="58"
+						height="18"
+						key="staticText-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Warehouse]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="18"
+						width="58"
+						height="18"
+						key="staticText-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="36"
+						width="58"
+						height="18"
+						key="staticText-12"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Item Code]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="58"
+						y="0"
+						width="6"
+						height="18"
+						key="staticText-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="58"
+						y="18"
+						width="6"
+						height="18"
+						key="staticText-14"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="58"
+						y="36"
+						width="6"
+						height="18"
+						key="staticText-15"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="64"
+						y="18"
+						width="296"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{docdateku}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Page" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="64"
+						y="36"
+						width="296"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{itemTxt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Page" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="64"
+						y="0"
+						width="296"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{whsTxt}]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="29"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="25"
+						y="3"
+						width="58"
+						height="21"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="83"
+						y="3"
+						width="53"
+						height="21"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Doc.Number]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="136"
+						y="3"
+						width="37"
+						height="21"
+						key="staticText-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[In]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="210"
+						y="3"
+						width="49"
+						height="21"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Balance]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="173"
+						y="3"
+						width="37"
+						height="21"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Out]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="259"
+						y="3"
+						width="291"
+						height="21"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left">
+						<font pdfFontName="Helvetica-Oblique" size="9" isItalic="true"/>
+					</textElement>
+				<text><![CDATA[           Description]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="3"
+						width="25"
+						height="21"
+						key="staticText-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[No]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="1"
+						width="550"
+						height="0"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="26"
+						width="550"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="18"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{docnum}.equals( new Long(0) ) ? false : true )]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="136"
+						y="0"
+						width="37"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{In}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="173"
+						y="0"
+						width="37"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{Out}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="25"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="210"
+						y="0"
+						width="49"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{balance1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="259"
+						y="0"
+						width="77"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["     "+$F{Trans}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="83"
+						y="0"
+						width="53"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Long"><![CDATA[$F{docnum}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="25"
+						y="0"
+						width="58"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Top">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{docdate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="336"
+						y="0"
+						width="214"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{custmrcode}.trim()+" - "+$F{custmrname}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="27"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="21"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="0"
+						y="1"
+						width="550"
+						height="0"
+						key="line-4"/>
+					<graphicElement stretchType="NoStretch" pen="Dotted"/>
+				</line>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="136"
+						y="3"
+						width="37"
+						height="18"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[new Double($V{inAmnt}.doubleValue() -$F{QType}.doubleValue())]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="173"
+						y="3"
+						width="37"
+						height="18"
+						key="textField-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{outAmnt}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="210"
+						y="3"
+						width="49"
+						height="18"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[new Double($V{balanceAmnt}.doubleValue()-$F{QType}.doubleValue())]]></textFieldExpression>
+				</textField>
+			</band>
+		</summary>
+</jasperReport>

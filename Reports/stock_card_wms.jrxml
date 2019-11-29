@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="stock_card_wms" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="whsCode" class="java.lang.String"/>
+	<parameter name="itemcodefr" class="java.lang.String"/>
+	<parameter name="itemcodeto" class="java.lang.String"/>
+	<parameter name="cutoffdate" class="java.lang.String"/>
+	<parameter name="audituser" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT 	CONCAT(p.cmpnyName,'(',p.cmpnyID,')') cmpnyID,p.address,p.city,p.zipCode, CONCAT('Phone : ',phone1,' ',phone2 ,'Fax : ',fax) AS phonefax,
+
+	g.docNum,g.docDate,g.custmrCode,IFNULL(c.custmrName,'') custmrName,CONCAT(IFNULL(c.custmrName,''),'-',reff) reff,
+	g.whsCode,g.itemCode,i.dscription itemname,
+	g.quantity,pkali,trx,IF(pkali=1,g.quantity,0) inqty,IF(pkali=-1,g.quantity,0) outqty,g.quantity*pkali AS pkaliunit,
+
+@noku:=@noku+IF(g.docNum=0,0,1) AS noku,trxno,
+CONCAT(g.whsCode,'-',w.dscription) whsCodeku,CONCAT(g.itemCode,'-',i.dscription) AS itemku,DATE($P{cutoffdate}) cutoffdateku
+FROM
+(
+SELECT 0 docnum,DATE(CONCAT(YEAR($P{cutoffdate}),'-',MONTH($P{cutoffdate}),'-01')) docDate,'' custmrCode,'Saldo Awal' reff,
+	whsCode ,itemCode,onhand quantity,1 pkali,'Saldo Awal' trx,1 trxno
+FROM
+(SELECT whsCode ,itemCode,SUM(onhand) onhand
+FROM
+(
+SELECT whsCode ,itemCode,onhand
+FROM  itemstockbalance WHERE yop=IF(MONTH($P{cutoffdate})=1,YEAR($P{cutoffdate})-1,YEAR($P{cutoffdate})) AND
+	mop=IF(MONTH($P{cutoffdate})=1,12,MONTH($P{cutoffdate})-1) AND whsCode=$P{whsCode} AND itemCode BETWEEN $P{itemcodefr} AND $P{itemcodeto}
+UNION ALL
+SELECT whsCode ,itemCode,0 onhand
+FROM  inventory WHERE whsCode=$P{whsCode} AND itemCode BETWEEN $P{itemcodefr} AND $P{itemcodeto}
+) AS a
+GROUP BY whsCode ,itemCode) AS itemstockbalance
+UNION ALL
+SELECT g.docNum,g.docDate,g.custmrCode,CONCAT(g.ref2,IF(g.comments='' ,'', '##'),g.comments) AS reff,
+	g1.whsCode,g1.itemCode,g1.quantity,1 pkali,'I/C Trx' trx,2 trxno
+FROM goodsreceipt g INNER JOIN goodsreceiptdetail1 g1 ON g.docentry=g1.docentry
+WHERE g1.whsCode=$P{whsCode} AND g1.itemCode BETWEEN $P{itemcodefr} AND $P{itemcodeto} AND g.docDate BETWEEN CONCAT(YEAR($P{cutoffdate}),'-',MONTH($P{cutoffdate}),'-01') AND $P{cutoffdate}
+UNION ALL
+SELECT g.docNum,g.docDate,g.custmrCode,CONCAT(g.ref2,IF(g.comments='' ,'', '##'),g.comments) AS reff,
+	g1.whsCode,g1.itemCode,g1.quantity,-1 pkali,'O/G Trx' trx,2 trxno
+FROM goodsissue g INNER JOIN goodsissuedetail1 g1 ON g.docentry=g1.docentry
+WHERE g1.whsCode=$P{whsCode} AND g1.itemCode BETWEEN $P{itemcodefr} AND $P{itemcodeto} AND g.docDate BETWEEN CONCAT(YEAR($P{cutoffdate}),'-',MONTH($P{cutoffdate}),'-01') AND $P{cutoffdate}
+UNION ALL
+SELECT g.docNum,g.docDate,g.custmrCode,CONCAT(g.ref2,IF(g.comments='' ,'', '##'),g.comments) AS reff,
+	g1.FrwhsCode,g1.itemCode,g1.quantity,-1 pkali,'T/O Trx' trx,2 trxno
+FROM goodstransfer g INNER JOIN goodstransferdetail1 g1 ON g.docentry=g1.docentry
+WHERE g1.FrwhsCode=$P{whsCode} AND g1.itemCode BETWEEN $P{itemcodefr} AND $P{itemcodeto} AND g.docDate BETWEEN CONCAT(YEAR($P{cutoffdate}),'-',MONTH($P{cutoffdate}),'-01') AND $P{cutoffdate}
+UNION ALL
+SELECT g.docNum,g.docDate,g.custmrCode,CONCAT(g.ref2,IF(g.comments='' ,'', '##'),g.comments) AS reff,
+	g1.TowhsCode,g1.itemCode,g1.quantity,1 pkali,'T/I Trx' trx,2 trxno
+FROM goodstransfer g INNER JOIN goodstransferdetail1 g1 ON g.docentry=g1.docentry
+WHERE g1.TowhsCode=$P{whsCode} AND g1.itemCode BETWEEN $P{itemcodefr} AND $P{itemcodeto} AND g.docDate BETWEEN CONCAT(YEAR($P{cutoffdate}),'-',MONTH($P{cutoffdate}),'-01') AND $P{cutoffdate}
+) AS g
+INNER JOIN item i ON i.itemCode=g.itemCode
+INNER JOIN warehouse w ON w.whsCode=g.whsCode
+LEFT JOIN customer c ON g.custmrCode=c.custmrCode
+, preference p, (SELECT @noku:=0) AS noku
+ORDER BY trxno,g.docDate,g.docNum]]>
+	</queryString>
+	<field name="cmpnyID" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="zipCode" class="java.lang.String"/>
+	<field name="phonefax" class="java.lang.String"/>
+	<field name="docNum" class="java.lang.Long"/>
+	<field name="docDate" class="java.sql.Date"/>
+	<field name="custmrCode" class="java.lang.String"/>
+	<field name="custmrName" class="java.lang.String"/>
+	<field name="reff" class="java.lang.String"/>
+	<field name="whsCode" class="java.lang.String"/>
+	<field name="itemCode" class="java.lang.String"/>
+	<field name="itemname" class="java.lang.String"/>
+	<field name="quantity" class="java.lang.Double"/>
+	<field name="pkali" class="java.lang.Long"/>
+	<field name="trx" class="java.lang.String"/>
+	<field name="inqty" class="java.lang.Double"/>
+	<field name="outqty" class="java.lang.Double"/>
+	<field name="pkaliunit" class="java.lang.Double"/>
+	<field name="noku" class="java.lang.Long"/>
+	<field name="trxno" class="java.lang.Long"/>
+	<field name="whsCodeku" class="java.lang.String"/>
+	<field name="itemku" class="java.lang.String"/>
+	<field name="cutoffdateku" class="java.sql.Date"/>
+	<variable name="noku" class="java.lang.Number" resetType="Group" resetGroup="itemcode" calculation="Count">
+		<variableExpression><![CDATA[$F{itemCode}]]></variableExpression>
+	</variable>
+	<variable name="saldoku" class="java.lang.Number" resetType="Group" resetGroup="itemcode" calculation="Sum">
+		<variableExpression><![CDATA[$F{pkaliunit}]]></variableExpression>
+	</variable>
+	<variable name="in" class="java.lang.Double" resetType="Group" resetGroup="itemcode" calculation="Sum">
+		<variableExpression><![CDATA[$F{inqty}]]></variableExpression>
+	</variable>
+	<variable name="out" class="java.lang.Double" resetType="Group" resetGroup="itemcode" calculation="Sum">
+		<variableExpression><![CDATA[$F{outqty}]]></variableExpression>
+	</variable>
+	<variable name="noku2" class="java.lang.Number">
+		<variableExpression><![CDATA[$V{noku}-1]]></variableExpression>
+	</variable>
+	<group name="itemcode" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{itemCode}]]></groupExpression>
+		<groupFooter>
+			<band height="23">
+				<line>
+					<reportElement x="2" y="1" width="555" height="1" forecolor="#999999"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement x="338" y="2" width="67" height="20"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total]]></text>
+				</staticText>
+				<textField pattern="#,##0">
+					<reportElement x="455" y="2" width="50" height="20">
+						<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Number"><![CDATA[$V{out}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement x="505" y="2" width="50" height="20">
+						<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Number"><![CDATA[$V{saldoku}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement x="405" y="2" width="50" height="20">
+						<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Number"><![CDATA[$V{in}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="2" y="22" width="555" height="1" forecolor="#999999"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="78" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="1" width="291" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{cmpnyID}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="21" width="291" height="15"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{address}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="36" width="291" height="15"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{city}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="51" width="291" height="15"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{phonefax}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="291" y="0" width="266" height="66"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[STOCK CARD]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="66" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="46" width="31" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="31" y="46" width="50" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Doc.Number]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="81" y="46" width="50" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[DocDate]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="46" width="207" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Reference]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="338" y="46" width="67" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Transaksi]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="405" y="46" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[In]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="455" y="46" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Out]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="505" y="46" width="50" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Balance]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="65" width="555" height="1" forecolor="#999999"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="0" y="15" width="81" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Item : ]]></text>
+			</staticText>
+			<textField pattern="#,##0">
+				<reportElement x="81" y="15" width="474" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{itemku}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="30" width="81" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Cut Off Date : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="81" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Warehouse : ]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="81" y="30" width="474" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{cutoffdateku}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="81" y="0" width="474" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{whsCodeku}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="1" y="47" width="555" height="1" forecolor="#999999"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField pattern="#,##0">
+				<reportElement x="455" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? true : false )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Number"><![CDATA[$F{outqty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="505" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? true : false )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Number"><![CDATA[$V{saldoku}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="405" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? true : false )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Number"><![CDATA[$F{inqty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="338" y="0" width="67" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? true : false )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{trx}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="405" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Number"><![CDATA[$F{inqty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="81" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{docDate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="131" y="0" width="207" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{reff}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="338" y="0" width="67" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{trx}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0">
+				<reportElement x="0" y="0" width="31" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Number"><![CDATA[$V{noku2}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="31" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Long"><![CDATA[$F{docNum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="505" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Number"><![CDATA[$V{saldoku}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="455" y="0" width="50" height="20">
+					<printWhenExpression><![CDATA[($F{trx}.equals( 'Saldo Awal' )? false : true )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Number"><![CDATA[$F{outqty}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="12" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="77" splitType="Stretch">
+			<line>
+				<reportElement x="2" y="0" width="555" height="1" forecolor="#999999"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement key="staticText-11" x="376" y="19" width="179" height="16"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[stock_card_wms]]></text>
+			</staticText>
+			<textField evaluationTime="Report" pattern="dd/MM/yyyy HH.mm.ss" isBlankWhenNull="false">
+				<reportElement key="textField-5" x="239" y="1" width="100" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-12" x="150" y="1" width="88" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Tanggal Cetak :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-4" x="376" y="2" width="179" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["User : "+$P{audituser}+""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-2" x="0" y="2" width="47" height="14"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report" isBlankWhenNull="false">
+				<reportElement key="textField-3" x="47" y="2" width="43" height="14"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["" + $V{PAGE_NUMBER} + ""]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

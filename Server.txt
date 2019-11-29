@@ -1,0 +1,15 @@
+//server=localhost
+//server=104.196.101.49
+//server=172.16.20.38
+server=203.89.25.164
+port=3375
+insys_db=insys_common_rotary
+username=sa
+password=spvsql
+usetran=false
+counter=1
+recalculate_on_login=true
+uderdevelopment=true
+consolmode=false
+defaultdb=wms_kdy_opd_test
+staging_db=staging_db_kdy_opd_test

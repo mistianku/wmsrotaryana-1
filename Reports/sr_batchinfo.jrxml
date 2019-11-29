@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="sr_batchinfo" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="whscodefr" class="java.lang.String"/>
+	<parameter name="whscodeto" class="java.lang.String"/>
+	<parameter name="batchnofr" class="java.lang.String"/>
+	<parameter name="batchnoto" class="java.lang.String"/>
+	<parameter name="racktypefr" class="java.lang.String"/>
+	<parameter name="racktypeto" class="java.lang.String"/>
+	<parameter name="rowfr" class="java.lang.String"/>
+	<parameter name="rowto" class="java.lang.String"/>
+	<parameter name="levelfr" class="java.lang.String"/>
+	<parameter name="levelto" class="java.lang.String"/>
+	<parameter name="brandcodefr" class="java.lang.String"/>
+	<parameter name="brandcodeto" class="java.lang.String"/>
+	<parameter name="itemcodefr" class="java.lang.String"/>
+	<parameter name="itemcodeto" class="java.lang.String"/>
+	<parameter name="sortbyexpiredate" class="java.lang.String"/>
+	<parameter name="audituser" class="java.lang.String"/>
+	<parameter name="racknofr" class="java.lang.String"/>
+	<parameter name="racknoto" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT a.sort0,a.sort1,a.sort2,
+a.BatchNo,a.ExpireDate,a.Active,iod.optdtlcode AS brandcode,ioi.dscription AS brandname,a.itemcode,b.dscription AS itemname ,
+	a.InnerCount , a.Pieces, a.PiecesAmt,
+	a.WhsCode,a.RackNo,
+	a.lrg,a.lvl,a.Active2,a.InnerCountd,a.Piecesd,a.PiecesAmtd,
+	sl.RackTypeCode,rt.Dscription AS racktypedesc,CONCAT(MID(a.RackNo,1,3),'-',MID(a.RackNo,4,2),'-',MID(a.RackNo,6,2),'-',MID(a.RackNo,8,2)) AS RackNoFmt,
+	w.dscription AS whsname
+
+FROM
+(
+SELECT 	IF($P{sortbyexpiredate}='1',CAST(a.ExpireDate AS CHAR(11)),'') AS sort0,
+	IF($P{sortbyexpiredate}='1',a.BatchNo,CAST(a.ExpireDate AS CHAR(11))) AS sort1,
+	IF($P{sortbyexpiredate}='1',a.itemcode,a.BatchNo) AS sort2,
+	a.BatchNo,a.ExpireDate,a.Active,a.itemcode,
+	a.InnerCount , a.Pieces, a.PiecesAmt,
+	ibl.WhsCode,ibl.RackNo,
+	MID(ibl.RackNo,1,3) AS lrg,MID(ibl.RackNo,6,2) AS lvl,
+	ibl.Active Active2,ibl.InnerCount AS InnerCountd,ibl.Pieces AS Piecesd,ibl.PiecesAmt AS PiecesAmtd
+FROM 	sr_batchlist a INNER JOIN
+	sr_itembatchlist ibl ON ibl.BatchNo=a.BatchNo AND ibl.ItemCode=a.ItemCode AND
+	ibl.rackno BETWEEN IF($P{racknofr}='',(SELECT rackno FROM sr_locate ORDER BY rackno ASC LIMIT 1),$P{racknofr}) AND
+				IF($P{racknoto}='',(SELECT rackno FROM sr_locate ORDER BY rackno DESC LIMIT 1),$P{racknoto})
+WHERE 	ibl.WhsCode BETWEEN 	IF($P{whscodefr}='',(SELECT whscode FROM warehouse ORDER BY whscode ASC LIMIT 1),$P{whscodefr}) AND
+				IF($P{whscodeto}='',(SELECT whscode FROM warehouse ORDER BY whscode DESC LIMIT 1),$P{whscodeto}) AND
+	MID(ibl.RackNo,1,3) BETWEEN IF($P{rowfr}='',(SELECT MID(RackNo,1,3) FROM sr_locate ORDER BY MID(RackNo,1,3) ASC LIMIT 1),$P{rowfr}) AND
+				IF($P{rowto}='',(SELECT MID(RackNo,1,3) FROM sr_locate ORDER BY MID(RackNo,1,3) DESC LIMIT 1),$P{rowto}) AND
+	MID(ibl.RackNo,6,2) BETWEEN IF($P{levelfr}='',(SELECT MID(RackNo,6,2) FROM sr_locate ORDER BY MID(RackNo,6,2) ASC LIMIT 1),$P{levelfr}) AND
+				IF($P{levelto}='',(SELECT MID(RackNo,6,2) FROM sr_locate ORDER BY MID(RackNo,6,2) DESC LIMIT 1),$P{levelto}) AND
+	a.BatchNo BETWEEN 	IF($P{batchnofr}='',(SELECT BatchNo FROM sr_batchlist ORDER BY BatchNo ASC LIMIT 1) ,$P{batchnofr}) AND
+				IF($P{batchnoto}='',(SELECT BatchNo FROM sr_batchlist ORDER BY BatchNo DESC LIMIT 1) ,$P{batchnoto}) AND
+	a.ItemCode BETWEEN IF($P{itemcodefr}='',(SELECT itemcode FROM item ORDER BY itemcode ASC LIMIT 1),$P{itemcodefr}) AND
+			   IF($P{itemcodeto}='',(SELECT itemcode FROM item ORDER BY itemcode DESC LIMIT 1),$P{itemcodeto})
+) AS a
+LEFT JOIN sr_locate sl ON sl.whscode=a.whscode AND sl.rackno=a.RackNo
+LEFT JOIN sr_racktype rt ON rt.sr_racktypecode =sl.racktypecode
+LEFT JOIN item b ON a.itemcode=b.itemCode
+LEFT JOIN itemoptdetail1 iod ON iod.ownercode=a.itemcode AND iod.optionalCode='01'
+LEFT JOIN itemoptionalinfo ioi ON ioi.optDtlCode=iod.optDtlCode AND ioi.optionalCode=iod.optionalCode
+LEFT JOIN warehouse w ON w.whscode=a.whscode
+WHERE
+rt.sr_racktypecode BETWEEN
+IF($P{racktypefr}='',(SELECT sr_racktypecode FROM sr_racktype ORDER BY sr_racktypecode ASC LIMIT 1),$P{racktypefr}) AND
+IF($P{racktypeto}='',(SELECT sr_racktypecode FROM sr_racktype ORDER BY sr_racktypecode DESC LIMIT 1),$P{racktypeto}) AND
+iod.optDtlCode BETWEEN
+IF($P{brandcodefr}='',(SELECT optDtlCode FROM itemoptdetail1 ORDER BY optDtlCode ASC LIMIT 1),$P{brandcodefr}) AND
+IF($P{brandcodeto}='',(SELECT optDtlCode FROM itemoptdetail1 ORDER BY optDtlCode DESC LIMIT 1),$P{brandcodeto})]]>
+	</queryString>
+	<field name="sort0" class="java.lang.String"/>
+	<field name="sort1" class="java.lang.String"/>
+	<field name="sort2" class="java.lang.String"/>
+	<field name="BatchNo" class="java.lang.String"/>
+	<field name="ExpireDate" class="java.sql.Timestamp"/>
+	<field name="Active" class="java.lang.String"/>
+	<field name="brandcode" class="java.lang.String"/>
+	<field name="brandname" class="java.lang.String"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="itemname" class="java.lang.String"/>
+	<field name="InnerCount" class="java.lang.Integer"/>
+	<field name="Pieces" class="java.lang.Integer"/>
+	<field name="PiecesAmt" class="java.lang.Integer"/>
+	<field name="WhsCode" class="java.lang.String"/>
+	<field name="RackNo" class="java.lang.String"/>
+	<field name="lrg" class="java.lang.String"/>
+	<field name="lvl" class="java.lang.String"/>
+	<field name="Active2" class="java.lang.String"/>
+	<field name="InnerCountd" class="java.lang.Integer"/>
+	<field name="Piecesd" class="java.lang.Integer"/>
+	<field name="PiecesAmtd" class="java.lang.Integer"/>
+	<field name="RackTypeCode" class="java.lang.String"/>
+	<field name="racktypedesc" class="java.lang.String"/>
+	<field name="RackNoFmt" class="java.lang.String"/>
+	<field name="whsname" class="java.lang.String"/>
+	<sortField name="WhsCode"/>
+	<sortField name="sort0"/>
+	<sortField name="itemcode"/>
+	<sortField name="sort1"/>
+	<sortField name="sort2"/>
+	<variable name="txtWarehouse" class="java.lang.String">
+		<variableExpression><![CDATA[$F{WhsCode}.trim()+'-'+$F{whsname}.trim()]]></variableExpression>
+	</variable>
+	<variable name="InnerCount_sort1" class="java.lang.Integer" resetType="Group" resetGroup="sort1" calculation="Sum">
+		<variableExpression><![CDATA[$F{InnerCountd}]]></variableExpression>
+	</variable>
+	<variable name="Pieces_sort1" class="java.lang.Double" resetType="Group" resetGroup="sort1">
+		<variableExpression><![CDATA[$F{Piecesd}]]></variableExpression>
+	</variable>
+	<variable name="PiecesAmt_sort1" class="java.lang.Double" resetType="Group" resetGroup="sort1" calculation="Sum">
+		<variableExpression><![CDATA[$F{PiecesAmtd}]]></variableExpression>
+	</variable>
+	<variable name="InnerCount_itemcode" class="java.lang.Integer" resetType="Group" resetGroup="itemcode" calculation="Sum">
+		<variableExpression><![CDATA[$F{InnerCountd}]]></variableExpression>
+	</variable>
+	<variable name="Pieces_itemcode" class="java.lang.Double" resetType="Group" resetGroup="itemcode">
+		<variableExpression><![CDATA[$F{Piecesd}]]></variableExpression>
+	</variable>
+	<variable name="PiecesAmt_itemcode" class="java.lang.Double" resetType="Group" resetGroup="itemcode" calculation="Sum">
+		<variableExpression><![CDATA[$F{PiecesAmtd}]]></variableExpression>
+	</variable>
+	<variable name="txtBatch_st" class="java.lang.String">
+		<variableExpression><![CDATA["Sub.Total Batch.No : "+$F{sort1}.trim()]]></variableExpression>
+	</variable>
+	<variable name="txtItemCode_st" class="java.lang.String">
+		<variableExpression><![CDATA["Sub.Total Itemcode : "+$F{itemcode}.trim()]]></variableExpression>
+	</variable>
+	<variable name="txtColumnHeader" class="java.lang.String">
+		<variableExpression><![CDATA["ItemCode#Item Name#Rack.No#Rack.Type#Batch.No#Expire.Date"]]></variableExpression>
+	</variable>
+	<variable name="txtSortby" class="java.lang.String">
+		<variableExpression><![CDATA["Sort By "+( $P{sortbyexpiredate}.equals( "1" ) ? "Expire Date" : "Item Code" )]]></variableExpression>
+	</variable>
+	<group name="whscode">
+		<groupExpression><![CDATA[$F{WhsCode}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<staticText>
+					<reportElement x="0" y="0" width="76" height="20"/>
+					<textElement/>
+					<text><![CDATA[Warehouse ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="76" y="0" width="4" height="20"/>
+					<textElement/>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<textField evaluationTime="Report">
+					<reportElement x="80" y="0" width="248" height="20"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$V{txtWarehouse}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="sort0">
+		<groupExpression><![CDATA[$F{sort0}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<printWhenExpression><![CDATA[( $P{sortbyexpiredate}.equals( "Y" )  ? true : false )]]></printWhenExpression>
+				<staticText>
+					<reportElement x="0" y="0" width="76" height="20"/>
+					<textElement/>
+					<text><![CDATA[Expire Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="76" y="0" width="4" height="20"/>
+					<textElement/>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+					<reportElement x="80" y="0" width="248" height="20"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{sort0}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="itemcode">
+		<groupExpression><![CDATA[$F{itemcode}]]></groupExpression>
+		<groupHeader>
+			<band height="18">
+				<textField>
+					<reportElement x="0" y="0" width="76" height="18"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{itemcode}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="80" y="0" width="298" height="18"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{itemname}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="21">
+				<textField pattern="#,##0">
+					<reportElement x="378" y="0" width="59" height="18"/>
+					<textElement textAlignment="Right">
+						<font size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$V{InnerCount_itemcode}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement x="437" y="0" width="59" height="18"/>
+					<textElement textAlignment="Right">
+						<font size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{Pieces_itemcode}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement x="496" y="0" width="59" height="18"/>
+					<textElement textAlignment="Right">
+						<font size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{PiecesAmt_itemcode}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="180" y="0" width="198" height="18"/>
+					<textElement>
+						<font size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$V{txtItemCode_st}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="180" y="20" width="375" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.25" lineColor="#999999"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="sort1">
+		<groupExpression><![CDATA[$F{sort1}]]></groupExpression>
+		<groupHeader>
+			<band/>
+		</groupHeader>
+		<groupFooter>
+			<band height="21">
+				<textField>
+					<reportElement x="378" y="2" width="59" height="18"/>
+					<textElement textAlignment="Right">
+						<font size="8" isBold="true" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$V{InnerCount_sort1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement x="437" y="2" width="59" height="18"/>
+					<textElement textAlignment="Right">
+						<font size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{Pieces_sort1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement x="496" y="2" width="59" height="18"/>
+					<textElement textAlignment="Right">
+						<font size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{PiecesAmt_sort1}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="180" y="2" width="198" height="18"/>
+					<textElement>
+						<font size="8" isItalic="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$V{txtBatch_st}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="180" y="0" width="375" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.25" lineColor="#999999"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="180" y="20" width="375" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.25" lineColor="#999999"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="sort2">
+		<groupExpression><![CDATA[$F{sort2}]]></groupExpression>
+		<groupHeader>
+			<band height="1"/>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="286" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Batch List Report]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="76" height="20"/>
+				<textElement/>
+				<text><![CDATA[Print Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="80" y="20" width="4" height="20"/>
+				<textElement/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="84" y="20" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="378" y="20" width="177" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{txtSortby}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="38" splitType="Stretch">
+			<staticText>
+				<reportElement x="496" y="0" width="59" height="20"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Ttl.PCs]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="437" y="0" width="59" height="20"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Pcs.Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="378" y="0" width="59" height="20"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Inr.Qty]]></text>
+			</staticText>
+			<textField evaluationTime="Report">
+				<reportElement x="0" y="0" width="378" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{txtColumnHeader}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="20" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.25" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18">
+			<textField>
+				<reportElement x="221" y="0" width="65" height="18"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{BatchNo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="286" y="0" width="55" height="18"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{ExpireDate}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="378" y="0" width="59" height="18"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{InnerCountd}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="496" y="0" width="59" height="18"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{PiecesAmtd}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0">
+				<reportElement x="437" y="0" width="59" height="18"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{Piecesd}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="0" width="100" height="18"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{RackNoFmt}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="0" width="41" height="18"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{racktypedesc}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="29" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="5" width="76" height="20"/>
+				<textElement/>
+				<text><![CDATA[Print User]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="76" y="5" width="4" height="20"/>
+				<textElement/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="80" y="5" width="100" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{audituser}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="444" y="6" width="80" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="524" y="6" width="31" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="0" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.25" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

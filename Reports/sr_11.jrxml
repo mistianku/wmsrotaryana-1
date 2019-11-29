@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="sr_11"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="552"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="datefr" isForPrompting="true" class="java.lang.String"/>
+	<parameter name="dateto" isForPrompting="true" class="java.lang.String"/>
+	<queryString><![CDATA[select a.suppcode,a.soQty,a.scQty,a.plQty,(a.scQty/a.soQty)*100 as realpercent,(a.plQty/a.scQty)*100 as pickpercent, 'by tgl transaction' as reff
+from
+(
+select ips.suppcode,sum(a.soQty) as soQty,sum(a.scQty) as scQty,sum(a.plQty) as plQty
+from (
+select d1.whscode,d1.itemcode,sum(quantity) as soQty,0 as scQty,0 as plQty from `order` d inner join orderdetail1 d1 on d.docentry=d1.docentry
+where cast(cast(d.docdate as char(11)) as datetime) 
+between cast($P{datefr} as datetime) and  cast($P{dateto} as datetime) and d1.whscode='001'
+group by d1.whscode,d1.itemcode
+union all
+select d1.whscode,d1.itemcode,0 as soQty,sum(quantity) as scQty,0 as plQty from delivery d inner join deliverydetail1 d1 on d.docentry=d1.docentry
+where cast(cast(d.docdate as char(11)) as datetime) 
+between cast($P{datefr} as datetime) and  cast($P{dateto} as datetime) and d1.whscode='001'
+group by d1.whscode,d1.itemcode
+union all
+select d1.whscode,d1.itemcode,0 as soQty,0 as scQty,sum(ttlpcsqty) as plQty from sr_transout d inner join sr_transoutdetail1 d1 on d.docentry=d1.docentry
+where cast(cast(d.docdate as char(11)) as datetime) 
+between cast($P{datefr} as datetime) and  cast($P{dateto} as datetime) and d1.whscode='001' and d.refftype='Sales Confirmation'
+group by d1.whscode,d1.itemcode
+) as a inner join itemsupplier ips on a.itemcode=ips.itemcode and ips.priority=1 and ips.active='Y'
+group by ips.suppcode
+) as a
+union all
+select a.suppcode,a.soQty,a.scQty,a.plQty,(a.scQty/a.soQty)*100 as realpercent,(a.plQty/a.scQty)*100 as pickpercent, 'by tgl order' as reff
+from
+(
+select a.suppcode,sum(a.soQty) as soQty,sum(a.scQty) as scQty,sum(a.plQty) as plQty
+from
+(
+select ips.suppcode,sum(quantity) as soQty,0 as scQty,0 as plQty from `order` d 
+inner join orderdetail1 d1 on d.docentry=d1.docentry
+inner join itemsupplier ips on d1.itemcode=ips.itemcode and ips.priority=1 and ips.active='Y'
+where cast(cast(d.docdate as char(11)) as datetime) 
+between cast($P{datefr} as datetime) and  cast($P{dateto} as datetime) and d1.whscode='001'
+group by ips.suppcode
+union all
+select ips.suppcode,0 as soQty,sum(quantity) as scQty,0 as plQty from delivery d 
+inner join deliverydetail1 d1 on d.docentry=d1.docentry
+inner join itemsupplier ips on d1.itemcode=ips.itemcode and ips.priority=1 and ips.active='Y'
+where cast(cast(d.docdate as char(11)) as datetime) 
+between cast($P{datefr} as datetime) and  cast($P{dateto} as datetime) and d1.whscode='001'
+group by ips.suppcode
+union all
+select ips.suppcode,0 as soQty,0 as scQty,sum(d1.ttlpcsqty) as plQty 
+from sr_transout d inner join sr_transoutdetail1 d1 on d.docentry=d1.docentry and d1.basetype=28
+inner join 
+(
+select distinct d1.baseentry,d1.docentry from delivery d 
+inner join deliverydetail1 d1 on d.docentry=d1.docentry and
+cast(cast(d.docdate as char(11)) as datetime) 
+between cast($P{datefr} as datetime) and  cast($P{dateto} as datetime) and d1.whscode='001'
+) as a on a.docentry=d1.baseentry
+inner join itemsupplier ips on d1.itemcode=ips.itemcode and ips.priority=1 and ips.active='Y'
+group by ips.suppcode
+) as a
+group by a.suppcode
+) as a]]></queryString>
+
+	<field name="suppcode" class="java.lang.String"/>
+	<field name="soQty" class="java.lang.Double"/>
+	<field name="scQty" class="java.math.BigDecimal"/>
+	<field name="plQty" class="java.lang.Double"/>
+	<field name="realpercent" class="java.lang.Double"/>
+	<field name="pickpercent" class="java.lang.Double"/>
+	<field name="reff" class="java.lang.String"/>
+
+
+		<group  name="reff" >
+			<groupExpression><![CDATA[$F{reff}]]></groupExpression>
+			<groupHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="10"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="8"
+						y="3"
+						width="512"
+						height="0"
+						forecolor="#999999"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="37"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="35"
+						y="0"
+						width="481"
+						height="16"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Pick Order Statistic Report]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="35"
+						y="16"
+						width="42"
+						height="19"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Owner]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="77"
+						y="16"
+						width="56"
+						height="19"
+						key="staticText-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Order]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="133"
+						y="16"
+						width="56"
+						height="19"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[S/C]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="189"
+						y="16"
+						width="56"
+						height="19"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Pick]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="245"
+						y="16"
+						width="68"
+						height="19"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[S/C %]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="313"
+						y="16"
+						width="68"
+						height="19"
+						key="staticText-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Pick %]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="390"
+						y="16"
+						width="126"
+						height="19"
+						key="staticText-8"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Transaction By]]></text>
+				</staticText>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="30"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="8"
+						y="26"
+						width="512"
+						height="0"
+						forecolor="#999999"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="21"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="35"
+						y="0"
+						width="42"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{suppcode}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="77"
+						y="0"
+						width="56"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{soQty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="133"
+						y="0"
+						width="56"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{scQty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="189"
+						y="0"
+						width="56"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{plQty}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="245"
+						y="0"
+						width="68"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{realpercent}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="313"
+						y="0"
+						width="68"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{pickpercent}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="390"
+						y="0"
+						width="126"
+						height="18"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{reff}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="30"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<lastPageFooter>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</lastPageFooter>
+		<summary>
+			<band height="50"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>
