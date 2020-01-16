@@ -1,99 +1,88 @@
-<?xml version="1.0" encoding="UTF-8"  ?>
-<!-- Created with iReport - A designer for JasperReports -->
-<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
-<jasperReport
-		 name="sr_03"
-		 columnCount="1"
-		 printOrder="Vertical"
-		 orientation="Portrait"
-		 pageWidth="612"
-		 pageHeight="792"
-		 columnWidth="552"
-		 columnSpacing="0"
-		 leftMargin="30"
-		 rightMargin="30"
-		 topMargin="20"
-		 bottomMargin="20"
-		 whenNoDataType="NoPages"
-		 isTitleNewPage="false"
-		 isSummaryNewPage="false">
-	<property name="ireport.scriptlethandling" value="0" />
-	<property name="ireport.encoding" value="UTF-8" />
-	<import value="java.util.*" />
-	<import value="net.sf.jasperreports.engine.*" />
-	<import value="net.sf.jasperreports.engine.data.*" />
-
-	<parameter name="univcode" isForPrompting="true" class="java.lang.String">
-		<defaultValueExpression ><![CDATA["1"]]></defaultValueExpression>
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="sr_03" pageWidth="612" pageHeight="792" columnWidth="552" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="univcode" class="java.lang.String">
+		<defaultValueExpression><![CDATA["1"]]></defaultValueExpression>
 	</parameter>
-	<parameter name="audituser" isForPrompting="true" class="java.lang.String">
-		<defaultValueExpression ><![CDATA["admin"]]></defaultValueExpression>
+	<parameter name="audituser" class="java.lang.String">
+		<defaultValueExpression><![CDATA["admin"]]></defaultValueExpression>
 	</parameter>
-	<queryString><![CDATA[select
-case when t.refftype='Let Down Process' then 'Let Down' else
-case when t.refftype='Spliting Process' then 'Spliting' else
-case when t.refftype='Replanishment Process' then 'Replenishment' else
-case when t.refftype='Interwarehouse Transaction' then 'Interwarehouse' else 'InterRacking' 
-end end end end as formtitle,
-case when t.refftype='Let Down Process' then 'No.Let Down' else
-case when t.refftype='Spliting Process' then 'No.Spliting' else
-case when t.refftype='Replanishment Process' then 'No.Replenishment' else
-case when t.refftype='Interwarehouse Transaction' then 'No.Interwarehouse' else 'No.InterRacking' 
-end end end end as formtitle1,
+	<queryString>
+		<![CDATA[SELECT
+a.transku,a.whscode,a.formtitle,a.formtitle1,
+a.docnum,a.docdate,a.docstatus,a.dscription,a.reffno,a.refftype,
+a.univcode,
+a.itemcodeku,
+a.lockdesc,a.racktypecode,a.racktypedesc,a.pathno
+,a.putno,
+a.itemcode,a.itemname,a.rackno,a.racknofr,a.racknoto,
+a.pltqty ,a.inrqty ,a.pcsqty,a.ttlpcsqty,
+a.pltqty1 ,a.inrqty1 ,a.pcsqty1,a.ttlpcsqty1,
+a.pltqty2 ,a.inrqty2 ,a.pcsqty2,a.ttlpcsqty2,a.whscodeku,a.barangku,a.isiPallet,a.docentry,a.linenum,
+b.batchNo,b.expireDate,
+b.PltQty3,b.InrQty3,b.PcsQty3,b.TtlPcsQty3,c.isCheckBatchNo
 
-t.docnum,t.docdate,t.docstatus,t.dscription,t.reffno,t.refftype,
-t.docnumin,t.docnumout,t.docentryout,t.docentryin,t.whscode,
-t.itemcode,t.rackno as rackno,t.pltqty as pltqty,t.inrqty as inrqty,t.pcsqty as pcsqty,
-t.ttlpcsqty as ttlpcsqty,transku,
-itm.dscription as itemname,bp.bpitem as univcode,
-case when $P{univcode}='1' then bp.bpitem else t.itemcode end as itemcodeku,
-l.dscription as lockdesc,l.racktypecode,r.dscription as racktypedesc,l.pathno,
-case when transku='1' then t.pltqty else 0 end as pltqty1,
-case when transku='1' then t.inrqty else 0 end as inrqty1,
-case when transku='1' then t.pcsqty else 0 end as pcsqty1,
-case when transku='1' then t.ttlpcsqty else 0 end as ttlpcsqty1,
-case when transku='2' then t.pltqty else 0 end as pltqty2,
-case when transku='2' then t.inrqty else 0 end as inrqty2,
-case when transku='2' then t.pcsqty else 0 end as pcsqty2,
-case when transku='2' then t.ttlpcsqty else 0 end as ttlpcsqty2
-from
+FROM
 (
-select 
-t.docnum,t.docdate,t.docstatus,t.dscription,t.reffno,t.refftype,
-t.docnumin,t.docnumout,t.docentryout,t.docentryin,tout.whscode,
-tout.itemcode,tout.rackno as rackno,tout.pltqty as pltqty,tout.inrqty as inrqty,tout.pcsqty as pcsqty,
-tout.ttlpcsqty as ttlpcsqty,'1' as transku
-from
-(
-select t.docnum,t.docdate,t.docstatus,t.dscription,t.reffno,t.refftype,
-t.docnumin,t.docnumout,t.docentryout,t.docentryin
-from sr_transtransfer t
-inner join sr_transtransfer_print tt on tt.docnum=t.docnum and tt.audituser=$P{audituser} 
-) as t
-left join sr_transoutdetail1 tout on tout.docentry=t.docentryout
-union all
-select 
-t.docnum,t.docdate,t.docstatus,t.dscription,t.reffno,t.refftype,
-t.docnumin,t.docnumout,t.docentryout,t.docentryin,tout.whscode,
-tout.itemcode,tout.rackno as rackno,tout.pltqty as pltqty,tout.inrqty as inrqty,tout.pcsqty as pcsqty,
-tout.ttlpcsqty as ttlpcsqty,'2' as transku
-from
-(
-select t.docnum,t.docdate,t.docstatus,t.dscription,t.reffno,t.refftype,
-t.docnumin,t.docnumout,t.docentryout,t.docentryin
-from sr_transtransfer t
-inner join sr_transtransfer_print tt on tt.docnum=t.docnum 
-and tt.audituser=$P{audituser} 
-) as t
-left join sr_transindetail1 tout on tout.docentry=t.docentryin 
-) as t
+SELECT '' AS transku,sro.whscode,
+CASE WHEN srt.refftype='Let Down Process' THEN 'Let Down' ELSE
+CASE WHEN srt.refftype='Spliting Process' THEN 'Spliting' ELSE
+CASE WHEN srt.refftype='Replanishment Process' THEN 'Replenishment' ELSE
+CASE WHEN srt.refftype='Interwarehouse Transaction' THEN 'Interwarehouse' ELSE 'InterRacking'
+END END END END AS formtitle,
+CASE WHEN srt.refftype='Let Down Process' THEN 'No.Let Down' ELSE
+CASE WHEN srt.refftype='Spliting Process' THEN 'No.Spliting' ELSE
+CASE WHEN srt.refftype='Replanishment Process' THEN 'No.Replenishment' ELSE
+CASE WHEN srt.refftype='Interwarehouse Transaction' THEN 'No.Interwarehouse' ELSE 'No.InterRacking'
+END END END END AS formtitle1,
+srt.docnum,srt.docdate,srt.docstatus,srt.dscription,srt.reffno,srt.refftype,
+bp.bpitem AS univcode,
+CASE WHEN  'P{univcode}'='1' THEN bp.bpitem ELSE srt1.itemcode END AS itemcodeku,
+CASE WHEN l.dscription IS NULL OR l.dscription='' THEN '' ELSE l.dscription END AS lockdesc,l.racktypecode,r.dscription AS racktypedesc,l.pathno
+,l.putno,
+srt1.itemcode,itm.dscription AS itemname,sro.rackno,sro.rackno AS racknofr,sri.rackno AS racknoto,
 
-left join item itm on itm.itemcode=t.itemcode
-left join bpitem bp on bp.itemcode=t.itemcode and bp.custmrcode='00SMB00'
-left join sr_locate l on l.rackno=t.rackno and l.whscode=t.whscode
-left join sr_racktype r on r.sr_racktypecode=l.racktypecode
---16]]></queryString>
-
+sro.pltqty AS pltqty ,sro.inrqty AS inrqty ,sro.pcsqty AS pcsqty,sro.ttlpcsqty AS ttlpcsqty,
+sro.pltqty AS pltqty1 ,sro.inrqty AS inrqty1 ,sro.pcsqty AS pcsqty1,sro.ttlpcsqty AS ttlpcsqty1,
+sri.pltqty AS pltqty2 ,sri.inrqty AS inrqty2 ,sri.pcsqty AS pcsqty2,sri.ttlpcsqty AS ttlpcsqty2,
+CONCAT(RTRIM(srt1.whscode),'-',RTRIM(srt1.whscodeto)) AS whscodeku,
+CASE WHEN 'P{univcode}'='1' THEN
+CONCAT(
+CONCAT(MID(RTRIM(sro.rackno),1,3),'-',MID(RTRIM(sro.rackno),4,2),'-',MID(RTRIM(sro.rackno),6,2),'-',MID(RTRIM(sro.rackno),8,2)),"   ",CONCAT(MID(RTRIM(sri.rackno),1,3),'-',MID(RTRIM(sri.rackno),4,2),'-',MID(RTRIM(sri.rackno),6,2),'-',MID(RTRIM(sri.rackno),8,2)),"  ",RTRIM(bp.bpitem),"  ",RTRIM(itm.dscription)) ELSE
+CONCAT(
+CONCAT(MID(RTRIM(sro.rackno),1,3),'-',MID(RTRIM(sro.rackno),4,2),'-',MID(RTRIM(sro.rackno),6,2),'-',MID(RTRIM(sro.rackno),8,2)),"   ",CONCAT(MID(RTRIM(sri.rackno),1,3),'-',MID(RTRIM(sri.rackno),4,2),'-',MID(RTRIM(sri.rackno),6,2),'-',MID(RTRIM(sri.rackno),8,2)),"  ",RTRIM(srt1.itemcode),"  ",RTRIM(itm.dscription)) END AS barangku,
+CONCAT(sri.pltqty,'/',sri.ttlpcsqty/sri.uom2) AS isiPallet,sri.docentry,sri.linenum
+FROM sr_transtransfer srt INNER JOIN sr_transtransferdetail1 srt1 ON srt.docentry=srt1.docentry
+INNER JOIN sr_transtransfer_print stp ON stp.docnum=srt.docnum AND stp.audituser='007'
+LEFT OUTER JOIN sr_transindetail1 sri ON srt1.linenum=sri.baseline AND srt1.docentry=sri.baseentry AND sri.basetype=srt.trantype
+LEFT OUTER JOIN sr_transoutdetail1 sro ON srt1.linenum=sro.baseline AND srt1.docentry=sro.baseentry AND sro.basetype=srt.trantype AND sri.linenum=sro.linenum
+LEFT JOIN item itm ON itm.itemcode=sro.itemcode
+LEFT JOIN bpitem bp ON bp.itemcode=sro.itemcode AND bp.custmrcode='00SMB00'
+LEFT JOIN sr_locate l ON l.rackno=sro.rackno AND l.whscode=sro.whscode
+LEFT JOIN sr_racktype r ON r.sr_racktypecode=l.racktypecode
+WHERE NOT sro.whscode IS NULL
+) AS a
+LEFT JOIN
+(
+SELECT sri2.docentry,sri2.baseLine AS linenum,sri2.batchNo,sri2.expireDate,
+SUM(sri2.PltQty) AS PltQty3,SUM(sri2.InrQty) AS InrQty3,SUM(sri2.PcsQty) AS PcsQty3,SUM(sri2.TtlPcsQty) AS TtlPcsQty3
+FROM sr_transtransfer srt INNER JOIN sr_transtransferdetail1 srt1 ON srt.docentry=srt1.docentry
+INNER JOIN sr_transtransfer_print stp ON stp.docnum=srt.docnum AND stp.audituser='007'
+LEFT OUTER JOIN sr_transindetail1 sri ON srt1.linenum=sri.baseline AND srt1.docentry=sri.baseentry AND sri.basetype=srt.trantype
+LEFT OUTER JOIN sr_transoutdetail1 sro ON srt1.linenum=sro.baseline AND srt1.docentry=sro.baseentry AND sro.basetype=srt.trantype AND sri.linenum=sro.linenum
+LEFT OUTER JOIN sr_transindetail2 sri2 ON sri.linenum=sri2.baseline AND sri.docentry=sri2.docentry
+GROUP BY sri2.docentry,sri2.baseLine,sri2.batchNo
+) AS b ON a.docentry=b.docentry AND a.linenum=b.linenum , sr_option c]]>
+	</queryString>
+	<field name="transku" class="java.lang.String"/>
+	<field name="whscode" class="java.lang.String"/>
 	<field name="formtitle" class="java.lang.String"/>
 	<field name="formtitle1" class="java.lang.String"/>
 	<field name="docnum" class="java.lang.Integer"/>
@@ -102,25 +91,22 @@ left join sr_racktype r on r.sr_racktypecode=l.racktypecode
 	<field name="dscription" class="java.lang.String"/>
 	<field name="reffno" class="java.lang.String"/>
 	<field name="refftype" class="java.lang.String"/>
-	<field name="docnumin" class="java.lang.Integer"/>
-	<field name="docnumout" class="java.lang.Integer"/>
-	<field name="docentryout" class="java.lang.Integer"/>
-	<field name="docentryin" class="java.lang.Integer"/>
-	<field name="whscode" class="java.lang.String"/>
-	<field name="itemcode" class="java.lang.String"/>
-	<field name="rackno" class="java.lang.String"/>
-	<field name="pltqty" class="java.lang.Double"/>
-	<field name="inrqty" class="java.lang.Double"/>
-	<field name="pcsqty" class="java.lang.Double"/>
-	<field name="ttlpcsqty" class="java.lang.Double"/>
-	<field name="transku" class="java.lang.String"/>
-	<field name="itemname" class="java.lang.String"/>
 	<field name="univcode" class="java.lang.String"/>
 	<field name="itemcodeku" class="java.lang.String"/>
 	<field name="lockdesc" class="java.lang.String"/>
 	<field name="racktypecode" class="java.lang.String"/>
 	<field name="racktypedesc" class="java.lang.String"/>
 	<field name="pathno" class="java.lang.Integer"/>
+	<field name="putno" class="java.lang.Integer"/>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="itemname" class="java.lang.String"/>
+	<field name="rackno" class="java.lang.String"/>
+	<field name="racknofr" class="java.lang.String"/>
+	<field name="racknoto" class="java.lang.String"/>
+	<field name="pltqty" class="java.lang.Double"/>
+	<field name="inrqty" class="java.lang.Double"/>
+	<field name="pcsqty" class="java.lang.Double"/>
+	<field name="ttlpcsqty" class="java.lang.Double"/>
 	<field name="pltqty1" class="java.lang.Double"/>
 	<field name="inrqty1" class="java.lang.Double"/>
 	<field name="pcsqty1" class="java.lang.Double"/>
@@ -129,55 +115,65 @@ left join sr_racktype r on r.sr_racktypecode=l.racktypecode
 	<field name="inrqty2" class="java.lang.Double"/>
 	<field name="pcsqty2" class="java.lang.Double"/>
 	<field name="ttlpcsqty2" class="java.lang.Double"/>
-
-	<sortField name="docnum" />
-	<sortField name="transku" />
-	<sortField name="racktypecode" />
-	<sortField name="pathno" />
-
-	<variable name="itemcodeku " class="java.lang.String" resetType="None" calculation="Nothing">
+	<field name="whscodeku" class="java.lang.String"/>
+	<field name="barangku" class="java.lang.String"/>
+	<field name="isiPallet" class="java.lang.String"/>
+	<field name="docentry" class="java.lang.Integer"/>
+	<field name="linenum" class="java.lang.Integer"/>
+	<field name="batchNo" class="java.lang.String"/>
+	<field name="expireDate" class="java.sql.Timestamp"/>
+	<field name="PltQty3" class="java.lang.Double"/>
+	<field name="InrQty3" class="java.lang.Double"/>
+	<field name="PcsQty3" class="java.lang.Double"/>
+	<field name="TtlPcsQty3" class="java.lang.Double"/>
+	<field name="isCheckBatchNo" class="java.lang.String"/>
+	<sortField name="docnum"/>
+	<sortField name="transku"/>
+	<sortField name="racktypecode"/>
+	<sortField name="putno"/>
+	<variable name="itemcodeku " class="java.lang.String" resetType="None">
 		<variableExpression><![CDATA[$F{itemcodeku}]]></variableExpression>
 	</variable>
-	<variable name="inner_racktype" class="java.lang.Double" resetType="Group" resetGroup="racktypecode" calculation="Sum">
+	<variable name="inner_racktype" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{inrqty}]]></variableExpression>
 	</variable>
-	<variable name="pcs_racktype" class="java.lang.Double" resetType="Group" resetGroup="racktypecode" calculation="Sum">
+	<variable name="pcs_racktype" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{pcsqty}]]></variableExpression>
 	</variable>
-	<variable name="ttlpcs_racktype" class="java.lang.Double" resetType="Group" resetGroup="racktypecode" calculation="Sum">
+	<variable name="ttlpcs_racktype" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{ttlpcsqty}]]></variableExpression>
 	</variable>
-	<variable name="racktype_count" class="java.lang.Double" resetType="Group" resetGroup="racktypecode" calculation="Count">
+	<variable name="racktype_count" class="java.lang.Double" calculation="Count">
 		<variableExpression><![CDATA[$F{racktypecode}]]></variableExpression>
 	</variable>
 	<variable name="inner_docnum" class="java.lang.Double" resetType="Group" resetGroup="docnum" calculation="Sum">
-		<variableExpression><![CDATA[$F{inrqty1}]]></variableExpression>
+		<variableExpression><![CDATA[$F{inrqty2}]]></variableExpression>
 	</variable>
-	<variable name="pcs_docnum" class="java.lang.Double" resetType="Group" resetGroup="docnum" calculation="Sum">
-		<variableExpression><![CDATA[$F{pcsqty1}]]></variableExpression>
+	<variable name="pcs_docnum" class="java.lang.Double" resetType="Group" resetGroup="docnum" incrementType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{pcsqty2}]]></variableExpression>
 	</variable>
 	<variable name="ttlpcs_docnum" class="java.lang.Double" resetType="Group" resetGroup="docnum" calculation="Sum">
-		<variableExpression><![CDATA[$F{ttlpcsqty1}]]></variableExpression>
+		<variableExpression><![CDATA[$F{ttlpcsqty2}]]></variableExpression>
 	</variable>
-	<variable name="txtsubttlracktype" class="java.lang.String" resetType="Report" calculation="Nothing">
+	<variable name="txtsubttlracktype" class="java.lang.String">
 		<variableExpression><![CDATA["Sub Total Rak : "+$F{racktypedesc}]]></variableExpression>
 	</variable>
-	<variable name="hal" class="java.lang.Double" resetType="Group" incrementType="Report" resetGroup="docnum" calculation="Count">
+	<variable name="hal" class="java.lang.Double" resetType="Group" resetGroup="docnum" incrementType="Report" calculation="Count">
 		<variableExpression><![CDATA[$F{docnum}]]></variableExpression>
 	</variable>
-	<variable name="frToRak" class="java.lang.String" resetType="Group" resetGroup="frtorak" calculation="Nothing">
+	<variable name="frToRak" class="java.lang.String">
 		<variableExpression><![CDATA[( $F{transku}.equals( "1" )? "Dari" : "Ke" )]]></variableExpression>
 	</variable>
-	<variable name="inner_frtorak" class="java.lang.Double" resetType="Group" resetGroup="frtorak" calculation="Sum">
+	<variable name="inner_frtorak" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{inrqty}]]></variableExpression>
 	</variable>
-	<variable name="pcs_frtorak" class="java.lang.Double" resetType="Group" resetGroup="frtorak" calculation="Sum">
+	<variable name="pcs_frtorak" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{pcsqty}]]></variableExpression>
 	</variable>
-	<variable name="ttlpcs_frtorak" class="java.lang.Double" resetType="Group" resetGroup="frtorak" calculation="Sum">
+	<variable name="ttlpcs_frtorak" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{ttlpcsqty}]]></variableExpression>
 	</variable>
-	<variable name="txtsubttl_frtorak" class="java.lang.String" resetType="Report" calculation="Nothing">
+	<variable name="txtsubttl_frtorak" class="java.lang.String">
 		<variableExpression><![CDATA["Sub Total Rak : "+$V{frToRak}]]></variableExpression>
 	</variable>
 	<variable name="inner_docnum2" class="java.lang.Double" resetType="Group" resetGroup="docnum" calculation="Sum">
@@ -189,938 +185,682 @@ left join sr_racktype r on r.sr_racktypecode=l.racktypecode
 	<variable name="ttlpcs_docnum2" class="java.lang.Double" resetType="Group" resetGroup="docnum" calculation="Sum">
 		<variableExpression><![CDATA[$F{ttlpcsqty2}]]></variableExpression>
 	</variable>
-	<variable name="frtorakcount" class="java.lang.Double" resetType="Group" resetGroup="frtorak" calculation="Count">
+	<variable name="frtorakcount" class="java.lang.Double" calculation="Count">
 		<variableExpression><![CDATA[$F{transku}]]></variableExpression>
 	</variable>
-	<variable name="plt_racktype" class="java.lang.Double" resetType="Group" resetGroup="racktypecode" calculation="Sum">
-		<variableExpression><![CDATA[$F{pltqty}]]></variableExpression>
-	</variable>
 	<variable name="plt_docnum" class="java.lang.Double" resetType="Group" resetGroup="docnum" calculation="Sum">
-		<variableExpression><![CDATA[$F{pltqty1}]]></variableExpression>
-	</variable>
-	<variable name="plt_frtorak" class="java.lang.Double" resetType="Group" resetGroup="frtorak" calculation="Sum">
-		<variableExpression><![CDATA[$F{pltqty}]]></variableExpression>
-	</variable>
-	<variable name="plt_docnum2" class="java.lang.Double" resetType="Group" resetGroup="docnum" calculation="Sum">
 		<variableExpression><![CDATA[$F{pltqty2}]]></variableExpression>
 	</variable>
-
-		<group  name="docnum" isStartNewPage="true" isResetPageNumber="true" isReprintHeaderOnEachPage="true" >
-			<groupExpression><![CDATA[$F{docnum}]]></groupExpression>
-			<groupHeader>
-			<band height="0"  isSplitAllowed="true" >
-			</band>
-			</groupHeader>
-			<groupFooter>
-			<band height="138"  isSplitAllowed="true" >
+	<variable name="txtKolomHeader" class="java.lang.String">
+		<variableExpression><![CDATA[($F{isCheckBatchNo}.equals( "Y" )?"Dari#Ke#Barang#Batch.No#Expire.Date":"Dari#Ke#Barang")]]></variableExpression>
+	</variable>
+	<group name="docnum" isStartNewPage="true" isResetPageNumber="true" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{docnum}]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band height="110" splitType="Stretch">
 				<rectangle>
-					<reportElement
-						mode="Transparent"
-						x="261"
-						y="0"
-						width="291"
-						height="37"
-						key="rectangle-2"/>
-					<graphicElement stretchType="NoStretch"/>
+					<reportElement key="rectangle-2" mode="Transparent" x="290" y="0" width="262" height="26"/>
 				</rectangle>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Group" evaluationGroup="racktypecode"  hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="391"
-						y="2"
-						width="41"
-						height="18"
-						key="textField-3"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{inner_docnum}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="432"
-						y="2"
-						width="47"
-						height="18"
-						key="textField-4"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{pcs_docnum}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="479"
-						y="2"
-						width="58"
-						height="18"
-						key="textField-5"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ttlpcs_docnum}]]></textFieldExpression>
-				</textField>
 				<staticText>
-					<reportElement
-						x="267"
-						y="2"
-						width="43"
-						height="18"
-						key="staticText-13"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font/>
-					</textElement>
-				<text><![CDATA[IN]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="0"
-						y="55"
-						width="241"
-						height="19"
-						key="staticText-20"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<reportElement key="staticText-20" x="0" y="38" width="241" height="19"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Center">
-						<font/>
+						<font size="9"/>
 					</textElement>
-				<text><![CDATA[Petugas]]></text>
+					<text><![CDATA[Petugas]]></text>
 				</staticText>
 				<staticText>
-					<reportElement
-						x="375"
-						y="55"
-						width="177"
-						height="19"
-						key="staticText-28"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<reportElement key="staticText-28" x="375" y="38" width="177" height="19"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Center">
-						<font/>
+						<font size="9"/>
 					</textElement>
-				<text><![CDATA[Mengetahui]]></text>
+					<text><![CDATA[Mengetahui]]></text>
 				</staticText>
-				<line direction="TopDown">
-					<reportElement
-						x="68"
-						y="132"
-						width="109"
-						height="1"
-						key="line-7"/>
-					<graphicElement stretchType="NoStretch"/>
+				<line>
+					<reportElement key="line-7" x="68" y="108" width="109" height="1"/>
 				</line>
-				<line direction="TopDown">
-					<reportElement
-						x="410"
-						y="132"
-						width="109"
-						height="1"
-						key="line-9"/>
-					<graphicElement stretchType="NoStretch"/>
+				<line>
+					<reportElement key="line-9" x="410" y="108" width="109" height="1"/>
 				</line>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="391"
-						y="20"
-						width="41"
-						height="18"
-						key="textField-10"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{inner_docnum2}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="432"
-						y="20"
-						width="47"
-						height="18"
-						key="textField-11"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{pcs_docnum2}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="479"
-						y="20"
-						width="58"
-						height="18"
-						key="textField-12"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ttlpcs_docnum2}]]></textFieldExpression>
-				</textField>
 				<staticText>
-					<reportElement
-						x="267"
-						y="20"
-						width="43"
-						height="18"
-						key="staticText-32"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<reportElement key="staticText-32" x="298" y="3" width="43" height="18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Right">
-						<font/>
+						<font size="9"/>
 					</textElement>
-				<text><![CDATA[OUT]]></text>
+					<text><![CDATA[Total]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="351"
-						y="2"
-						width="40"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField evaluationTime="Group" evaluationGroup="docnum" pattern="#,##0" isBlankWhenNull="false">
+					<reportElement key="textField" x="424" y="3" width="29" height="18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Right">
-						<font size="9"/>
+						<font size="8"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{plt_docnum}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{inner_docnum}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="351"
-						y="20"
-						width="40"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField pattern="#,##0" isBlankWhenNull="false">
+					<reportElement key="textField" x="453" y="3" width="29" height="18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Right">
-						<font size="9"/>
+						<font size="8"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{plt_docnum2}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{pcs_docnum}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0" isBlankWhenNull="false">
+					<reportElement key="textField" x="481" y="3" width="58" height="18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{ttlpcs_docnum}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0" isBlankWhenNull="false">
+					<reportElement key="textField" x="379" y="3" width="45" height="18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{plt_docnum}]]></textFieldExpression>
 				</textField>
 			</band>
-			</groupFooter>
-		</group>
-		<group  name="frtorak" >
-			<groupExpression><![CDATA[$F{transku}]]></groupExpression>
-			<groupHeader>
-			<band height="18"  isSplitAllowed="true" >
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Group" evaluationGroup="frtorak"  hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="0"
-						y="0"
-						width="200"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font pdfFontName="Helvetica-Oblique" isItalic="true"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$V{frToRak}]]></textFieldExpression>
-				</textField>
-			</band>
-			</groupHeader>
-			<groupFooter>
-			<band height="21"  isSplitAllowed="true" >
-				<printWhenExpression><![CDATA[( $V{frtorakcount}.equals( new Double(1) ) ? new Boolean(false) : new Boolean(true) )]]></printWhenExpression>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Group" evaluationGroup="racktypecode"  hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="391"
-						y="3"
-						width="41"
-						height="18"
-						key="textField-7"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+		</groupFooter>
+	</group>
+	<group name="pathno">
+		<groupExpression><![CDATA[$F{putno}]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch"/>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<group name="barangku">
+		<groupExpression><![CDATA[$F{barangku}]]></groupExpression>
+		<groupHeader>
+			<band height="18">
+				<textField pattern="#,##0" isBlankWhenNull="true">
+					<reportElement key="textField" x="424" y="0" width="29" height="18">
+						<printWhenExpression><![CDATA[( $F{isCheckBatchNo}.equals( "Y" ) ? false : $F{inrqty2}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Right">
-						<font size="9"/>
+						<font size="8"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{inner_frtorak}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$F{inrqty2}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="432"
-						y="3"
-						width="47"
-						height="18"
-						key="textField-8"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField pattern="#,##0" isBlankWhenNull="true">
+					<reportElement key="textField" x="453" y="0" width="29" height="18">
+						<printWhenExpression><![CDATA[( $F{isCheckBatchNo}.equals( "Y" ) ? false : $F{pcsqty2}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Right">
-						<font size="9"/>
+						<font size="8"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{pcs_frtorak}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$F{pcsqty2}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="479"
-						y="3"
-						width="58"
-						height="18"
-						key="textField-9"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField pattern="#,##0" isBlankWhenNull="true">
+					<reportElement key="textField" x="481" y="0" width="58" height="18">
+						<printWhenExpression><![CDATA[( $F{isCheckBatchNo}.equals( "Y" ) ? false : true )]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Right">
-						<font size="9"/>
+						<font size="8"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ttlpcs_frtorak}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$F{ttlpcsqty2}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="71"
-						y="3"
-						width="267"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$V{txtsubttl_frtorak}]]></textFieldExpression>
-				</textField>
-				<line direction="TopDown">
-					<reportElement
-						x="375"
-						y="1"
-						width="162"
-						height="0"
-						key="line-10"/>
-					<graphicElement stretchType="NoStretch"/>
+				<line>
+					<reportElement key="line-10" x="543" y="11" width="9" height="1">
+						<printWhenExpression><![CDATA[( $F{isCheckBatchNo}.equals( "Y" ) ? false : true )]]></printWhenExpression>
+					</reportElement>
+					<graphicElement>
+						<pen lineWidth="1.0" lineStyle="Dashed"/>
+					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="351"
-						y="3"
-						width="40"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField pattern="#,##0" isBlankWhenNull="false">
+					<reportElement key="textField" x="379" y="0" width="45" height="18">
+						<printWhenExpression><![CDATA[( $F{isCheckBatchNo}.equals( "Y" ) ? false : $F{pltqty2}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement textAlignment="Right">
-						<font size="9"/>
+						<font size="8"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{plt_frtorak}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{isiPallet}]]></textFieldExpression>
 				</textField>
-			</band>
-			</groupFooter>
-		</group>
-		<group  name="racktypecode" >
-			<groupExpression><![CDATA[$F{racktypecode}]]></groupExpression>
-			<groupHeader>
-			<band height="18"  isSplitAllowed="true" >
-				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="0"
-						y="0"
-						width="275"
-						height="18"
-						key="textField"
-						isRemoveLineWhenBlank="true"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isBlankWhenNull="false">
+					<reportElement key="textField" x="0" y="0" width="375" height="18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
 					<textElement>
-						<font pdfFontName="Helvetica-Oblique" isItalic="true"/>
+						<font size="8"/>
 					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{racktypedesc}]]></textFieldExpression>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{barangku}]]></textFieldExpression>
 				</textField>
 			</band>
-			</groupHeader>
-			<groupFooter>
-			<band height="20"  isSplitAllowed="true" >
-				<printWhenExpression><![CDATA[($V{racktype_count}.equals(new Double(1)) ? new Boolean(false) : new Boolean(true ))]]></printWhenExpression>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Group" evaluationGroup="racktypecode"  hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="391"
-						y="2"
-						width="41"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{inner_racktype}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="432"
-						y="2"
-						width="47"
-						height="18"
-						key="textField-1"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{pcs_racktype}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="479"
-						y="2"
-						width="58"
-						height="18"
-						key="textField-2"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ttlpcs_racktype}]]></textFieldExpression>
-				</textField>
-				<line direction="TopDown">
-					<reportElement
-						x="375"
-						y="1"
-						width="162"
-						height="0"
-						key="line-1"/>
-					<graphicElement stretchType="NoStretch"/>
-				</line>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="71"
-						y="2"
-						width="267"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$V{txtsubttlracktype}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="351"
-						y="2"
-						width="40"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{plt_racktype}]]></textFieldExpression>
-				</textField>
-			</band>
-			</groupFooter>
-		</group>
-		<background>
-			<band height="0"  isSplitAllowed="true" >
-			</band>
-		</background>
-		<title>
-			<band height="0"  isSplitAllowed="true" >
-				<printWhenExpression><![CDATA[new Boolean(true)]]></printWhenExpression>
-			</band>
-		</title>
-		<pageHeader>
-			<band height="103"  isSplitAllowed="true" >
-				<staticText>
-					<reportElement
-						x="0"
-						y="49"
-						width="127"
-						height="17"
-						key="staticText-2"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch">
+			<printWhenExpression><![CDATA[new Boolean(true)]]></printWhenExpression>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="103" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-2" x="0" y="49" width="127" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Tanggal]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="391"
-						y="32"
-						width="161"
-						height="17"
-						key="staticText-3"/>
-					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center">
-						<font/>
-					</textElement>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" x="391" y="32" width="161" height="17"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Reff.No]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="141"
-						y="32"
-						width="120"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{docnum}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="MM/dd/yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="141"
-						y="49"
-						width="120"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.util.Date"><![CDATA[$F{docdate}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="391"
-						y="76"
-						width="161"
-						height="18"
-						key="textField"/>
-					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center">
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{refftype}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="391"
-						y="49"
-						width="161"
-						height="27"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
-						<font size="14"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{reffno}]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement
-						x="0"
-						y="66"
-						width="127"
-						height="17"
-						key="staticText-6"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="141" y="32" width="120" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{docnum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField" x="141" y="49" width="120" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{docdate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="391" y="76" width="161" height="18"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{refftype}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="391" y="49" width="161" height="27"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{reffno}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-6" x="0" y="66" width="127" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Keterangan]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="141"
-						y="66"
-						width="226"
-						height="17"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{dscription}]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement
-						x="0"
-						y="83"
-						width="127"
-						height="17"
-						key="staticText-21"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="141" y="66" width="226" height="17" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[new Boolean( $F{dscription}.equals( null ) ? false : true )]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{dscription}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-21" x="0" y="83" width="127" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Gudang]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="141"
-						y="83"
-						width="100"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{whscode}]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement
-						x="127"
-						y="32"
-						width="14"
-						height="17"
-						key="staticText-22"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
-						<font/>
-					</textElement>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField" x="141" y="83" width="100" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{whscodeku}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-22" x="127" y="32" width="14" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[:]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="127"
-						y="49"
-						width="14"
-						height="17"
-						key="staticText-23"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
-						<font/>
-					</textElement>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-23" x="127" y="49" width="14" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[:]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="127"
-						y="66"
-						width="14"
-						height="17"
-						key="staticText-24"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
-						<font/>
-					</textElement>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-24" x="127" y="66" width="14" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[:]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="127"
-						y="83"
-						width="14"
-						height="17"
-						key="staticText-25"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
-						<font/>
-					</textElement>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-25" x="127" y="83" width="14" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[:]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="176"
-						y="0"
-						width="215"
-						height="22"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Center">
-						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{formtitle}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="0"
-						y="32"
-						width="127"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{formtitle1}]]></textFieldExpression>
-				</textField>
-			</band>
-		</pageHeader>
-		<columnHeader>
-			<band height="23"  isSplitAllowed="true" >
-				<staticText>
-					<reportElement
-						x="71"
-						y="0"
-						width="275"
-						height="23"
-						key="staticText-7"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font size="9"/>
-					</textElement>
-				<text><![CDATA[Barang]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="0"
-						y="0"
-						width="68"
-						height="23"
-						key="staticText-8"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font size="9"/>
-					</textElement>
-				<text><![CDATA[No.Rak]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="391"
-						y="0"
-						width="41"
-						height="23"
-						key="staticText-10"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="176" y="0" width="215" height="22"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{formtitle}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="0" y="32" width="127" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{formtitle1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="23" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-10" x="424" y="0" width="29" height="23"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Inner]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="432"
-						y="0"
-						width="47"
-						height="23"
-						key="staticText-11"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-11" x="453" y="0" width="29" height="23"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Pcs]]></text>
-				</staticText>
-				<staticText>
-					<reportElement
-						x="479"
-						y="0"
-						width="58"
-						height="23"
-						key="staticText-12"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-12" x="481" y="0" width="58" height="23"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Total Pcs]]></text>
-				</staticText>
-				<line direction="TopDown">
-					<reportElement
-						x="1"
-						y="18"
-						width="551"
-						height="1"
-						key="line-3"/>
-					<graphicElement stretchType="NoStretch" pen="1Point"/>
-				</line>
-				<staticText>
-					<reportElement
-						x="351"
-						y="0"
-						width="41"
-						height="23"
-						key="staticText-33"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
+			</staticText>
+			<line>
+				<reportElement key="line-3" x="1" y="18" width="551" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement key="staticText-34" x="379" y="0" width="45" height="23"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
 				<text><![CDATA[Pallet]]></text>
-				</staticText>
-			</band>
-		</columnHeader>
-		<detail>
-			<band height="18"  isSplitAllowed="true" >
-				<printWhenExpression><![CDATA[new Boolean( $F{ttlpcsqty}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="71"
-						y="0"
-						width="75"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$V{itemcodeku }]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="148"
-						y="0"
-						width="178"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{itemname}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="0"
-						y="0"
-						width="68"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement>
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA[$F{rackno}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="391"
-						y="0"
-						width="41"
-						height="18"
-						key="textField">
-							<printWhenExpression><![CDATA[new Boolean( $F{inrqty}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
-						</reportElement>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{inrqty}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="432"
-						y="0"
-						width="47"
-						height="18"
-						key="textField">
-							<printWhenExpression><![CDATA[new Boolean( $F{pcsqty}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
-						</reportElement>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{pcsqty}]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="479"
-						y="0"
-						width="58"
-						height="18"
-						key="textField">
-							<printWhenExpression><![CDATA[new Boolean( $F{ttlpcsqty}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
-						</reportElement>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{ttlpcsqty}]]></textFieldExpression>
-				</textField>
-				<line direction="TopDown">
-					<reportElement
-						x="539"
-						y="11"
-						width="11"
-						height="1"
-						key="line-11"/>
-					<graphicElement stretchType="NoStretch"/>
-				</line>
-				<textField isStretchWithOverflow="false" pattern="#,##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="351"
-						y="0"
-						width="40"
-						height="18"
-						key="textField">
-							<printWhenExpression><![CDATA[new Boolean( $F{pltqty}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
-						</reportElement>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="9"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{pltqty}]]></textFieldExpression>
-				</textField>
-			</band>
-		</detail>
-		<columnFooter>
-			<band height="0"  isSplitAllowed="true" >
-			</band>
-		</columnFooter>
-		<pageFooter>
-			<band height="34"  isSplitAllowed="true" >
-				<staticText>
-					<reportElement
-						x="375"
-						y="18"
-						width="176"
-						height="16"
-						key="staticText-16"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="8"/>
-					</textElement>
-				<text><![CDATA[SR_03]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="463"
-						y="1"
-						width="88"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="8"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA["User : "+$P{audituser}+""]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement
-						x="152"
-						y="1"
-						width="88"
-						height="18"
-						key="staticText-17"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Right">
-						<font size="8"/>
-					</textElement>
+			</staticText>
+			<textField evaluationTime="Report">
+				<reportElement x="1" y="0" width="378" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{txtKolomHeader}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[( $F{isCheckBatchNo}.equals( "N" ) ? false : true )]]></printWhenExpression>
+			<textField pattern="#,##0" isBlankWhenNull="true">
+				<reportElement key="textField" x="481" y="0" width="58" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{TtlPcsQty3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0" isBlankWhenNull="true">
+				<reportElement key="textField" x="453" y="0" width="29" height="18">
+					<printWhenExpression><![CDATA[new Boolean( $F{PcsQty3}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{PcsQty3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0" isBlankWhenNull="true">
+				<reportElement key="textField" x="424" y="0" width="29" height="18">
+					<printWhenExpression><![CDATA[new Boolean( $F{InrQty3}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{InrQty3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0" isBlankWhenNull="false">
+				<reportElement key="textField" x="379" y="0" width="45" height="18">
+					<printWhenExpression><![CDATA[new Boolean($F{PltQty3}.equals( new Double(0) ) ? false : true )]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{PltQty3}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="141" y="0" width="100" height="18"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{batchNo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="241" y="0" width="100" height="18"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{expireDate}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="34" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-16" x="375" y="18" width="176" height="16"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[SR_03_A]]></text>
+			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="463" y="1" width="88" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["User : "+$P{audituser}+""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-17" x="152" y="1" width="88" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
 				<text><![CDATA[Tanggal Cetak :]]></text>
-				</staticText>
-				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="false" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="241"
-						y="1"
-						width="100"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Left" verticalAlignment="Top">
-						<font size="8"/>
-					</textElement>
-				<textFieldExpression   class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="0"
-						y="1"
-						width="47"
-						height="18"
-						key="textField"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Left">
-						<font size="8"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.String"><![CDATA["Hal : " + $V{PAGE_NUMBER} + "/"]]></textFieldExpression>
-				</textField>
-				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Group" evaluationGroup="docnum"  hyperlinkType="None"  hyperlinkTarget="Self" >
-					<reportElement
-						x="47"
-						y="1"
-						width="50"
-						height="18"
-						key="textField-6"/>
-					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
-					<textElement textAlignment="Left">
-						<font size="8"/>
-					</textElement>
-				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
-				</textField>
-				<line direction="BottomUp">
-					<reportElement
-						x="0"
-						y="0"
-						width="552"
-						height="1"
-						key="line-6"/>
-					<graphicElement stretchType="NoStretch"/>
-				</line>
-			</band>
-		</pageFooter>
-		<summary>
-			<band height="0"  isSplitAllowed="true" >
-			</band>
-		</summary>
+			</staticText>
+			<textField evaluationTime="Report" pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement key="textField" x="241" y="1" width="100" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="0" y="1" width="47" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Hal : " + $V{PAGE_NUMBER} + "/"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Group" evaluationGroup="docnum" isBlankWhenNull="false">
+				<reportElement key="textField-6" x="47" y="1" width="50" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<line direction="BottomUp">
+				<reportElement key="line-6" x="0" y="0" width="552" height="1"/>
+			</line>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
 </jasperReport>
