@@ -11,6 +11,8 @@
 	<parameter name="docdateTo" class="java.lang.String"/>
 	<parameter name="sortby" class="java.lang.String"/>
 	<parameter name="audituser" class="java.lang.String"/>
+	<parameter name="docnumFr" class="java.lang.String"/>
+	<parameter name="docnumTo" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT 	CONCAT(p.cmpnyName,'(',p.cmpnyID,')') cmpnyID,p.address,p.city,p.zipCode, CONCAT('Phone : ',phone1,' ',phone2 ,'Fax : ',fax) AS phonefax,
 	CONCAT(DATE_FORMAT(DATE($P{docdateFr}),'%d-%m-%Y'),' to ',DATE_FORMAT(DATE($P{docdateTo}),'%d-%m-%Y')) AS dateFilter,
@@ -26,18 +28,21 @@ CONCAT(@whscodeFr ,' To ', @whscodeTo) AS whscodefilter
 
 FROM
 (
-SELECT a.custmrcode,a1.whscode,a1.itemCode,SUM(quantity) totqty,GROUP_CONCAT(a.docNum) AS refDocNum
+SELECT a.custmrcode,a1.whscode,a1.itemCode,SUM(quantity) totqty,GROUP_CONCAT(DISTINCT a.docNum) AS refDocNum
 FROM  goodsissue a
 INNER JOIN goodsissuedetail1 a1 ON a.docEntry=a1.docEntry
 ,
 (SELECT @custmrcodeFr:=IF($P{custmrcodeFr}='',MIN(custmrcode),$P{custmrcodeFr}),@custmrcodeTo:=IF($P{custmrcodeTo}='',MAX(custmrcode),$P{custmrcodeTo}),
-	@docdateFr:=IF($P{docdateFr}='',MIN(docdate),$P{docdateFr}),@docdateTo:=IF($P{docdateTo}='',MAX(docdate),$P{docdateTo})
+	@docdateFr:=IF($P{docdateFr}='',MIN(docdate),$P{docdateFr}),@docdateTo:=IF($P{docdateTo}='',MAX(docdate),$P{docdateTo}),
+@docnumFr:=IF($P{docnumFr}='',MIN(docnum),$P{docnumFr}),@docnumTo:=IF($P{docnumTo}='',MAX(docnum),$P{docnumTo})
 
   FROM goodsissue) aa,
 (SELECT @whscodeFr:=IF($P{whsCodeFr}='',MIN(whscode),$P{whsCodeFr}),@whscodeTo:=IF($P{whsCodeTo}='',MAX(whscode),$P{whsCodeTo}) FROM warehouse) bb
 WHERE a.docDate BETWEEN $P{docdateFr} AND $P{docdateTo} AND a1.whsCode BETWEEN @whscodeFr AND @whscodeTo AND
-	a.custmrCode BETWEEN @custmrcodeFr AND @custmrcodeTo
-GROUP BY a1.itemCode
+	a.custmrCode BETWEEN @custmrcodeFr AND @custmrcodeTo and
+	a.docNum between @docnumFr and @docnumTo
+GROUP BY a.custmrcode,a1.whscode,a1.itemCode
+order by a1.itemCode,a.docNum
 ) AS a
 INNER JOIN item i ON a.itemCode=i.itemCode
 INNER JOIN warehouse w ON w.whsCode=a.whsCode
@@ -46,7 +51,8 @@ preference p
 
 
 
-GROUP BY IF($P{sortby}='1',a.custmrCode,a.whsCode),a.itemCode]]>
+GROUP BY IF($P{sortby}='1',a.custmrCode,a.whsCode),a.itemCode
+order by IF($P{sortby}='1',a.custmrCode,a.whsCode),a.itemCode]]>
 	</queryString>
 	<field name="cmpnyID" class="java.lang.String"/>
 	<field name="address" class="java.lang.String"/>
@@ -385,7 +391,7 @@ GROUP BY IF($P{sortby}='1',a.custmrCode,a.whsCode),a.itemCode]]>
 				<textElement textAlignment="Right">
 					<font size="8"/>
 				</textElement>
-				<text><![CDATA[stock_card_wms]]></text>
+				<text><![CDATA[giss_summry_by_product]]></text>
 			</staticText>
 			<textField evaluationTime="Report" pattern="dd/MM/yyyy HH.mm.ss" isBlankWhenNull="false">
 				<reportElement key="textField-5" x="239" y="1" width="100" height="18"/>

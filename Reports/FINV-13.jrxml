@@ -21,15 +21,24 @@
 		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
 	</parameter>
 	<queryString>
-		<![CDATA[select d.docnum,d.docdate,d.ref2,dd.itemCode,i.dscription,floor(dd.quantity/i.uom2) as inr,
-mod(dd.quantity,i.uom2) as pcs,dd.quantity,
-(select max(ref2) from goodsreceipt where docnum between $P{docnumfr} and $P{docnumto}) as max_doc,
-(select min(ref2) from goodsreceipt where docnum between $P{docnumfr} and $P{docnumto}) as min_doc
-from goodsreceipt d
-inner join goodsreceiptdetail1 dd on d.docEntry=dd.docEntry
-inner join packlistno p on p.docnum=d.docnum and p.emplcode=$P{emplcode}
-inner join item i on i.itemcode=dd.itemcode
--- where dd.whscode='001']]>
+		<![CDATA[SELECT d.docnum,d.docdate,d.ref2,dd.itemCode,i.dscription,FLOOR(dd.quantity/i.uom2) AS inr,
+MOD(dd.quantity,i.uom2) AS pcs,dd.quantity,
+(SELECT MAX(ref2) FROM goodsreceipt WHERE docnum BETWEEN
+(SELECT MIN(docnum) FROM packlistno p WHERE p.emplcode=$P{emplcode})
+AND
+(SELECT MAX(docnum) FROM packlistno p WHERE p.emplcode=$P{emplcode})
+) AS max_doc,
+(SELECT MIN(ref2) FROM goodsreceipt WHERE docnum BETWEEN (SELECT MIN(docnum) FROM packlistno p WHERE p.emplcode=$P{emplcode})
+AND
+(SELECT MAX(docnum) FROM packlistno p WHERE p.emplcode=$P{emplcode}) ) AS min_doc,
+c.cmpnyName,CONCAT(c.address,' , ',c.city) alamat,CONCAT(IFNULL(ioi.optDtlCode,' '),'-',IFNULL(ioi.dscription,' ')) brand
+FROM goodsreceipt d
+INNER JOIN goodsreceiptdetail1 dd ON d.docEntry=dd.docEntry
+INNER JOIN packlistno p ON p.docnum=d.docnum AND p.emplcode=$P{emplcode}
+INNER JOIN item i ON i.itemcode=dd.itemcode
+LEFT JOIN itemoptdetail1 iod ON iod.ownerCode=dd.itemCode AND iod.optionalCode='07'
+LEFT JOIN itemoptionalinfo ioi ON ioi.optDtlCode=iod.optDtlCode AND iod.optionalCode=ioi.optionalCode,
+preference c;]]>
 	</queryString>
 	<field name="docnum" class="java.lang.Integer"/>
 	<field name="docdate" class="java.sql.Date"/>
@@ -41,6 +50,9 @@ inner join item i on i.itemcode=dd.itemcode
 	<field name="quantity" class="java.lang.Double"/>
 	<field name="max_doc" class="java.lang.String"/>
 	<field name="min_doc" class="java.lang.String"/>
+	<field name="cmpnyName" class="java.lang.String"/>
+	<field name="alamat" class="java.lang.String"/>
+	<field name="brand" class="java.lang.String"/>
 	<sortField name="ref2"/>
 	<background>
 		<band splitType="Stretch"/>
@@ -49,32 +61,7 @@ inner join item i on i.itemcode=dd.itemcode
 		<band splitType="Stretch"/>
 	</title>
 	<pageHeader>
-		<band height="50" splitType="Stretch">
-			<staticText>
-				<reportElement key="staticText-1" x="0" y="0" width="236" height="28"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement>
-					<font size="12"/>
-				</textElement>
-				<text><![CDATA[PT. MARTINA BERTO
-DAFTAR BPHP / PTN DI TRANSFER]]></text>
-			</staticText>
-			<textField isBlankWhenNull="false">
-				<reportElement key="textField-1" x="0" y="28" width="552" height="22"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.String"><![CDATA["No. Dokumen : "+$F{min_doc}+" s/d "+$F{max_doc}]]></textFieldExpression>
-			</textField>
+		<band height="70" splitType="Stretch">
 			<staticText>
 				<reportElement key="staticText-24" x="0" y="0" width="552" height="28"/>
 				<box>
@@ -88,6 +75,17 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				</textElement>
 				<text><![CDATA[Receipt Report]]></text>
 			</staticText>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-1" x="0" y="48" width="552" height="22"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["No. Dokumen : "+$F{min_doc}+" s/d "+$F{max_doc}]]></textFieldExpression>
+			</textField>
 			<textField isBlankWhenNull="false">
 				<reportElement key="textField" x="405" y="0" width="100" height="18"/>
 				<box>
@@ -109,6 +107,18 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				</box>
 				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA["" + $V{PAGE_NUMBER} + ""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="217" height="28"/>
+				<textElement>
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{cmpnyName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="28" width="552" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{alamat}]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>
@@ -180,46 +190,46 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<text><![CDATA[NAMA PRODUK]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-8" x="367" y="0" width="35" height="16"/>
+				<reportElement key="staticText-8" x="436" y="0" width="35" height="16"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<text><![CDATA[BOX]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-9" x="402" y="0" width="35" height="16"/>
+				<reportElement key="staticText-9" x="471" y="0" width="35" height="16"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<text><![CDATA[PCS]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-10" x="437" y="0" width="58" height="16"/>
+				<reportElement key="staticText-10" x="505" y="0" width="47" height="16"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<text><![CDATA[TOTAL]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-11" x="495" y="0" width="57" height="16"/>
+				<reportElement key="staticText-8" x="367" y="0" width="69" height="16"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -229,7 +239,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<textElement verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<text><![CDATA[No. Mobil]]></text>
+				<text><![CDATA[BRAND]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -301,7 +311,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{dscription}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0" isBlankWhenNull="false">
-				<reportElement key="textField" x="367" y="0" width="35" height="18"/>
+				<reportElement key="textField" x="436" y="0" width="35" height="18"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -314,7 +324,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<textFieldExpression class="java.lang.Double"><![CDATA[$F{inr}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0" isBlankWhenNull="false">
-				<reportElement key="textField" x="402" y="0" width="35" height="18"/>
+				<reportElement key="textField" x="471" y="0" width="35" height="18"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -327,7 +337,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<textFieldExpression class="java.lang.Double"><![CDATA[$F{pcs}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0" isBlankWhenNull="false">
-				<reportElement key="textField" x="437" y="0" width="58" height="18"/>
+				<reportElement key="textField" x="505" y="0" width="47" height="18"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -339,36 +349,23 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				</textElement>
 				<textFieldExpression class="java.lang.Double"><![CDATA[$F{quantity}]]></textFieldExpression>
 			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="365" y="0" width="71" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 	<columnFooter>
-		<band height="101" splitType="Stretch">
-			<staticText>
-				<reportElement key="staticText-12" x="0" y="24" width="80" height="16"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
-				<text><![CDATA[Tanggal Cetak:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement key="staticText-13" x="236" y="24" width="52" height="16"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
-				<text><![CDATA[User:]]></text>
-			</staticText>
+		<band height="107" splitType="Stretch">
 			<staticText>
 				<reportElement key="staticText-14" x="0" y="51" width="106" height="16"/>
 				<box>
@@ -383,7 +380,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<text><![CDATA[YANG  MENGELUARKAN]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-15" x="111" y="51" width="106" height="16"/>
+				<reportElement key="staticText-15" x="217" y="51" width="106" height="16"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -396,33 +393,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<text><![CDATA[YANG MENGETAHUI]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-16" x="225" y="51" width="122" height="16"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<text><![CDATA[SECURITY MB - GN. PUTRI]]></text>
-			</staticText>
-			<staticText>
-				<reportElement key="staticText-17" x="357" y="51" width="106" height="16"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<text><![CDATA[SECUTIRY PULO AYANG]]></text>
-			</staticText>
-			<staticText>
-				<reportElement key="staticText-18" x="471" y="51" width="81" height="16"/>
+				<reportElement key="staticText-18" x="463" y="51" width="89" height="16"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -448,7 +419,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<text><![CDATA[(                              )]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-20" x="111" y="85" width="106" height="16"/>
+				<reportElement key="staticText-20" x="217" y="85" width="106" height="16"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -461,33 +432,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<text><![CDATA[(                              )]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-21" x="225" y="85" width="106" height="16"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<text><![CDATA[(                              )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement key="staticText-22" x="357" y="85" width="106" height="16"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<text><![CDATA[(                              )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement key="staticText-23" x="463" y="85" width="97" height="16"/>
+				<reportElement key="staticText-23" x="463" y="85" width="89" height="16"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -499,8 +444,38 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				</textElement>
 				<text><![CDATA[(                          )]]></text>
 			</staticText>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="18" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-12" x="1" y="0" width="80" height="16"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Tanggal Cetak:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-13" x="400" y="0" width="52" height="16"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[User:]]></text>
+			</staticText>
 			<textField evaluationTime="Report" pattern="dd/MM/yyyy h.mm a" isBlankWhenNull="false">
-				<reportElement key="textField" x="80" y="24" width="156" height="16"/>
+				<reportElement key="textField" x="81" y="0" width="156" height="16"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -513,7 +488,7 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="false">
-				<reportElement key="textField" x="288" y="24" width="100" height="16"/>
+				<reportElement key="textField" x="452" y="0" width="100" height="16"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -526,14 +501,11 @@ DAFTAR BPHP / PTN DI TRANSFER]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{audituser}]]></textFieldExpression>
 			</textField>
 		</band>
-	</columnFooter>
-	<pageFooter>
-		<band height="50" splitType="Stretch"/>
 	</pageFooter>
 	<lastPageFooter>
-		<band height="50" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</lastPageFooter>
 	<summary>
-		<band height="50" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</summary>
 </jasperReport>
