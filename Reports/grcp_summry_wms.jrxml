@@ -38,8 +38,8 @@
 	<field name="txtsortby2" class="java.lang.String"/>
 	<field name="sortby1desc" class="java.lang.String"/>
 	<field name="sortby2desc" class="java.lang.String"/>
-	<field name="custmrfilter" class="java.lang.Object"/>
-	<field name="whscodefilter" class="java.lang.Object"/>
+	<field name="custmrfilter" class="java.lang.String"/>
+	<field name="whscodefilter" class="java.lang.String"/>
 	<field name="docdatefilter" class="java.lang.String"/>
 	<sortField name="sortby1"/>
 	<sortField name="docNum"/>
@@ -226,7 +226,7 @@
 				</textElement>
 				<text><![CDATA[Warehouse : ]]></text>
 			</staticText>
-			<textField pattern="#,##0" isBlankWhenNull="false">
+			<textField evaluationTime="Report" pattern="#,##0" isBlankWhenNull="false">
 				<reportElement key="textField" x="81" y="33" width="270" height="15"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
