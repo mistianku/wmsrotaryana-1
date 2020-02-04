@@ -9,7 +9,7 @@
 	<parameter name="whsCodeTo" class="java.lang.String"/>
 	<parameter name="docdateFr" class="java.lang.String"/>
 	<parameter name="docdateTo" class="java.lang.String"/>
-	<parameter name="sortby" class="java.lang.String"/>
+	<parameter name="sortby" class="java.lang.String" isForPrompting="false"/>
 	<parameter name="audituser" class="java.lang.String"/>
 	<parameter name="docnumFr" class="java.lang.String"/>
 	<parameter name="docnumTo" class="java.lang.String"/>
