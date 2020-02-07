@@ -4,7 +4,7 @@
 	<property name="ireport.encoding" value="UTF-8"/>
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="48"/>
 	<import value="net.sf.jasperreports.engine.*"/>
 	<import value="java.util.*"/>
 	<import value="net.sf.jasperreports.engine.data.*"/>
@@ -33,7 +33,7 @@
 	<field name="goodsreceiptdetail1_whsCode" class="java.lang.String"/>
 	<field name="goodsreceiptdetail1_itemCode" class="java.lang.String"/>
 	<field name="goodsreceiptdetail1_quantity" class="java.lang.Double"/>
-	<field name="goodsreceiptdetail1_price" class="java.lang.Long"/>
+	<field name="goodsreceiptdetail1_price" class="java.lang.Double"/>
 	<field name="goodsreceiptdetail1_lineTotal" class="java.lang.Double"/>
 	<field name="linenum" class="java.lang.Integer"/>
 	<field name="item_dscription" class="java.lang.String"/>
@@ -164,7 +164,7 @@
 					<text><![CDATA[( ..............................)]]></text>
 				</staticText>
 				<textField pattern="###0" isBlankWhenNull="false">
-					<reportElement key="textField" x="483" y="10" width="65" height="18"/>
+					<reportElement key="textField" x="379" y="10" width="37" height="18"/>
 					<box>
 						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -173,6 +173,17 @@
 					</box>
 					<textElement textAlignment="Right"/>
 					<textFieldExpression class="java.lang.Double"><![CDATA[$V{SubTotUnt}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0" isBlankWhenNull="false">
+					<reportElement key="textField" x="483" y="10" width="66" height="18"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression class="java.lang.Double"><![CDATA[$V{SubTotJmlh}]]></textFieldExpression>
 				</textField>
 			</band>
 		</groupFooter>
@@ -355,7 +366,7 @@
 				<text><![CDATA[No.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-7" x="147" y="7" width="96" height="15"/>
+				<reportElement key="staticText-7" x="102" y="8" width="85" height="15"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -366,7 +377,7 @@
 				<text><![CDATA[Kd. Barang]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-8" x="243" y="7" width="240" height="15"/>
+				<reportElement key="staticText-8" x="186" y="7" width="194" height="15"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -377,7 +388,7 @@
 				<text><![CDATA[Nama Barang]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-9" x="27" y="7" width="120" height="15"/>
+				<reportElement key="staticText-9" x="27" y="7" width="75" height="15"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -388,7 +399,7 @@
 				<text><![CDATA[Brand]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-10" x="483" y="7" width="66" height="15"/>
+				<reportElement key="staticText-10" x="379" y="7" width="38" height="15"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -410,12 +421,34 @@
 					<pen lineWidth="1.0" lineStyle="Dotted"/>
 				</graphicElement>
 			</line>
+			<staticText>
+				<reportElement key="staticText-10" x="417" y="7" width="66" height="15"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Harga]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-10" x="483" y="7" width="66" height="15"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Total]]></text>
+			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="18" splitType="Stretch">
 			<textField isBlankWhenNull="false">
-				<reportElement key="textField" x="243" y="0" width="240" height="18"/>
+				<reportElement key="textField" x="186" y="0" width="194" height="18"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -425,19 +458,8 @@
 				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{item_dscription}]]></textFieldExpression>
 			</textField>
-			<textField isBlankWhenNull="false">
-				<reportElement key="textField" x="147" y="0" width="96" height="18"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{goodsreceiptdetail1_itemCode}]]></textFieldExpression>
-			</textField>
 			<textField pattern="#,##0" isBlankWhenNull="false">
-				<reportElement key="textField" x="483" y="0" width="66" height="18"/>
+				<reportElement key="textField" x="379" y="0" width="38" height="18"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -448,7 +470,7 @@
 				<textFieldExpression class="java.lang.Double"><![CDATA[$F{goodsreceiptdetail1_quantity}]]></textFieldExpression>
 			</textField>
 			<textField pattern="###0" isBlankWhenNull="false">
-				<reportElement key="textField" x="27" y="0" width="120" height="18"/>
+				<reportElement key="textField" x="27" y="0" width="75" height="18"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -468,6 +490,39 @@
 				</box>
 				<textElement/>
 				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{Docnum_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="102" y="0" width="85" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{goodsreceiptdetail1_itemCode}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0" isBlankWhenNull="false">
+				<reportElement key="textField" x="417" y="0" width="66" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{goodsreceiptdetail1_price}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0" isBlankWhenNull="false">
+				<reportElement key="textField" x="483" y="0" width="66" height="18"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{goodsreceiptdetail1_lineTotal}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
