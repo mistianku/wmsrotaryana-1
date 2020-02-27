@@ -111,8 +111,8 @@
 					</textElement>
 					<text><![CDATA[Terima Dari :]]></text>
 				</staticText>
-				<staticText>
-					<reportElement key="staticText-5" x="328" y="9" width="80" height="14"/>
+				<textField isBlankWhenNull="false">
+					<reportElement key="textField" x="329" y="9" width="222" height="14"/>
 					<box>
 						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -120,19 +120,6 @@
 						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					</box>
 					<textElement textAlignment="Right">
-						<font isItalic="true"/>
-					</textElement>
-					<text><![CDATA[Tanggal   :]]></text>
-				</staticText>
-				<textField isBlankWhenNull="false">
-					<reportElement key="textField" x="416" y="9" width="135" height="14"/>
-					<box>
-						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					</box>
-					<textElement>
 						<font isItalic="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{tglQ}]]></textFieldExpression>
@@ -516,17 +503,17 @@
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{auditUser}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement key="staticText-27" x="483" y="11" width="52" height="12"/>
+				<reportElement key="staticText-27" x="483" y="11" width="69" height="12"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<textElement>
+				<textElement textAlignment="Right">
 					<font size="8"/>
 				</textElement>
-				<text><![CDATA[good_receipt]]></text>
+				<text><![CDATA[good_receipt_rpt]]></text>
 			</staticText>
 		</band>
 	</pageFooter>
@@ -585,17 +572,17 @@
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{auditUser}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement key="staticText-26" x="483" y="12" width="52" height="12"/>
+				<reportElement key="staticText-26" x="483" y="12" width="69" height="12"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<textElement>
+				<textElement textAlignment="Right">
 					<font size="8"/>
 				</textElement>
-				<text><![CDATA[good_receipt]]></text>
+				<text><![CDATA[good_receipt_rpt]]></text>
 			</staticText>
 		</band>
 	</lastPageFooter>
