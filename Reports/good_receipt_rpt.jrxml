@@ -282,7 +282,7 @@
 				<text><![CDATA[Kd. Barang]]></text>
 			</staticText>
 			<staticText>
-				<reportElement key="staticText-8" x="192" y="7" width="168" height="15"/>
+				<reportElement key="staticText-8" x="192" y="7" width="180" height="15"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
